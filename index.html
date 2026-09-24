@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แบบสังเกต 3A · Patient Identification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0d5752">
+<meta name="description" content="แบบสังเกตการปฏิบัติตามหลัก 3A ในการระบุตัวผู้ป่วย ฝ่ายการพยาบาล">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="3A">
+<meta name="mobile-web-app-capable" content="yes">
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#f3f4ef; --surface:#ffffff; --surface-2:#f8f9f6; --ink:#16201f; --ink-2:#4b5552; --muted:#6b7471; --line:#dde1da; --line-2:#c9cec6;
+  --brand:#0d5752; --brand-2:#0a4642; --brand-soft:#e3efec;
+  --ask:#2a78d6; --ask-strong:#1c5cab; --ask-soft:#e6f0fc;
+  --ans:#eb6834; --ans-strong:#b0461b; --ans-soft:#fdeee6;
+  --acc:#1baf7a; --acc-strong:#0c7a53; --acc-soft:#e2f5ed;
+  --ok:#0c7a53; --ok-soft:#e2f5ed; --bad:#b93a0e; --bad-soft:#fbe9e1; --warn:#9a6700; --warn-soft:#fbf1d9;
+  --radius:14px; --shadow:0 1px 2px rgba(20,30,28,.06),0 4px 14px rgba(20,30,28,.05);
+  --font:"IBM Plex Sans Thai",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111615; --surface:#1a2120; --surface-2:#202827; --ink:#eef2f0; --ink-2:#c3cbc8; --muted:#98a29f; --line:#2e3836; --line-2:#3c4845;
+    --brand:#5fb8ae; --brand-2:#4aa197; --brand-soft:#1d3532;
+    --ask:#3987e5; --ask-strong:#8fbcf2; --ask-soft:#1b2a3d; --ans:#d95926; --ans-strong:#f3a27f; --ans-soft:#3a2319;
+    --acc:#199e70; --acc-strong:#6fd6ac; --acc-soft:#16332a; --ok:#6fd6ac; --ok-soft:#16332a; --bad:#f39a7a; --bad-soft:#3a2119; --warn:#e7c06a; --warn-soft:#3a3018;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ask);outline-offset:2px}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:30;background:var(--brand);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-weight:700;font-family:var(--mono);letter-spacing:-.5px}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:17px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl small{opacity:.8;font-size:12.5px}
+.tabs{display:flex;gap:4px;background:rgba(0,0,0,.18);padding:4px;border-radius:12px}
+.tab{border:0;background:transparent;color:#fff;opacity:.8;padding:8px 12px;border-radius:9px;display:flex;align-items:center;gap:6px;font-weight:600;font-size:14px;min-height:40px}
+.tab[aria-selected="true"]{background:#fff;color:var(--brand-2);opacity:1}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .top{background:#0f2e2b}:root:not([data-theme="light"]) .tab[aria-selected="true"]{color:#0f2e2b}}
+@media (max-width:560px){.tab span{display:none}.ttl small{display:none}}
+
+main{max-width:1180px;margin:0 auto;padding:16px 16px 120px}
+.hidden{display:none!important}
+
+/* ---------- form ---------- */
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.clock{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600}
+.clock .t{font-family:var(--mono);font-size:15px}
+.clock .d{color:var(--muted);font-weight:500;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:13.5px;font-weight:600;background:var(--surface);border:1px solid var(--line)}
+.pill.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.pill button{border:0;background:var(--warn);color:#fff;border-radius:999px;padding:2px 10px;font-size:12.5px}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.sec-h{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.card.p1{background:#eef4fd;border-color:#cfe0f6}.card.p1 .sec-h .n{background:#2a78d6;color:#fff}
+.card.p2{background:#eaf6ef;border-color:#c8e8d6}.card.p2 .sec-h .n{background:#1f8a5b;color:#fff}
+.card.p3{background:#f3effc;border-color:#ddd3f5}.card.p3 .sec-h .n{background:#6a4fc4;color:#fff}
+.card.p4{background:#fdf1e7;border-color:#f6dcc6}.card.p4 .sec-h .n{background:#c2621f;color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .card.p1{background:#18232f;border-color:#243548}:root:not([data-theme="light"]) .card.p2{background:#172722;border-color:#223a31}:root:not([data-theme="light"]) .card.p3{background:#211d2e;border-color:#322b45}:root:not([data-theme="light"]) .card.p4{background:#2a2019;border-color:#403024}}
+.star{color:var(--bad);font-weight:700;margin-left:2px}
+.sec-h .n{width:28px;height:28px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.sec-h h2{font-size:16px;margin:0;font-weight:600;flex:1}
+.sec-h .req{font-size:12px;color:var(--muted);font-weight:500}
+.sec-h .done{color:var(--ok)}
+.sub-l{font-size:13.5px;color:var(--ink-2);font-weight:600;margin:12px 0 8px;display:flex;align-items:center;gap:6px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;min-height:46px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);font-weight:500;font-size:15px;text-align:left;transition:background .12s,border-color .12s}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip[aria-pressed="true"] .ck{background:#fff;color:var(--brand);border-color:#fff}
+.chip .ck{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none}
+.chip .ck svg{width:14px;height:14px;stroke-width:3;opacity:0}
+.chip[aria-pressed="true"] .ck svg{opacity:1}
+.chip:disabled{opacity:.42;cursor:not-allowed;border-style:dashed}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0b1b19}}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tiles.t3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:560px){.tiles.t3{grid-template-columns:1fr}}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);text-align:left;min-height:84px;font-weight:500;font-size:14.5px;line-height:1.35}
+.tile .ic{width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.tile .ic svg{width:21px;height:21px}
+.tile small{color:var(--muted);font-size:12.5px;font-weight:400}
+.tile:hover{border-color:var(--brand)}
+.tile[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1.5px var(--brand)}
+.tile[aria-pressed="true"] .ic{background:var(--brand);color:#fff}
+@media (max-width:560px){.tile{flex-direction:row;align-items:center;min-height:56px}}
+
+.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px}
+.dept{min-height:44px;border-radius:10px;border:1.5px solid var(--line-2);background:var(--surface);font-family:var(--mono);font-weight:600;font-size:13.5px}
+.dept[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.sel{width:100%;min-height:48px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);padding:10px 12px;font-size:15px}
+.sel:disabled{opacity:.5}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+
+/* 3A cards */
+.a3{border-radius:var(--radius);border:1px solid var(--line);background:var(--surface);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.a3-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.a3-h .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff}
+.a3-h .ic svg{width:22px;height:22px}
+.a3-h b{font-size:18px;letter-spacing:.2px;display:block;line-height:1.1}
+.a3-h small{font-size:12.5px;color:var(--muted)}
+.a3-h .st{margin-left:auto}
+.a3.ask .a3-h{background:var(--ask-soft)} .a3.ask .ic{background:var(--ask)} .a3.ask b{color:var(--ask-strong)}
+.a3.ans .a3-h{background:var(--ans-soft)} .a3.ans .ic{background:var(--ans)} .a3.ans b{color:var(--ans-strong)}
+.a3.acc .a3-h{background:var(--acc-soft)} .a3.acc .ic{background:var(--acc)} .a3.acc b{color:var(--acc-strong)}
+.a3-b{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.q{font-weight:600;font-size:14.5px}
+.q .num{font-family:var(--mono);color:var(--muted);margin-right:4px}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
+.yn button{min-height:52px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15.5px}
+.yn button svg{width:22px;height:22px;stroke-width:2.4}
+.yn .y[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.yn .n[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .yn [aria-pressed="true"]{color:#101614!important}}
+.yn button:disabled{opacity:.4;cursor:not-allowed}
+.ev .chip{min-height:42px;font-size:14px;padding:6px 11px}
+.other{margin-top:6px;width:100%;min-height:42px;border-radius:10px;border:1.5px solid var(--line-2);padding:8px 12px;background:var(--surface)}
+.dis{opacity:.5}
+.dis .q::after{content:" · ไม่ต้องตอบ";color:var(--muted);font-weight:500}
+.na-note{display:flex;gap:8px;align-items:center;background:var(--surface-2);border:1px dashed var(--line-2);border-radius:10px;padding:8px 10px;font-size:13.5px;color:var(--ink-2)}
+.st-badge{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;border-radius:999px;padding:3px 9px;background:var(--surface);border:1px solid var(--line)}
+.st-badge.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.st-badge.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.st-badge svg{width:14px;height:14px;stroke-width:2.6}
+textarea.note{width:100%;min-height:64px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);padding:10px 12px;resize:vertical}
+
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+.bar-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.prog{flex:1;min-width:0}
+.prog-t{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;font-weight:600;margin-bottom:5px}
+.prog-t .res{display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .2s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:0;background:var(--brand);color:#fff;font-weight:700;font-size:16px}
+.btn.inc{background:var(--line-2);color:var(--ink-2)}
+.btn:disabled{background:var(--line-2);color:var(--muted);cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line-2);font-weight:600;font-size:14.5px;min-height:42px;padding:0 14px}
+.btn.sm{min-height:38px;font-size:14px;padding:0 12px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn:not(.ghost):not(:disabled){color:#0b1b19}}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.25s;z-index:50;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;display:flex;gap:8px;align-items:center;max-width:calc(100% - 32px);pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.miss{outline:2px solid var(--bad);outline-offset:3px;border-radius:var(--radius)}
+
+/* ---------- dashboard ---------- */
+.lock{max-width:380px;margin:8vh auto;text-align:center}
+.lock .ic{width:64px;height:64px;border-radius:18px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;margin:0 auto 12px}
+.lock .ic svg{width:30px;height:30px}
+.lock h2{margin:0 0 4px;font-size:20px}
+.lock p{color:var(--muted);margin:0 0 16px;font-size:14.5px}
+.pin{width:100%;text-align:center;font-family:var(--mono);font-size:26px;letter-spacing:12px;min-height:56px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);margin-bottom:10px}
+.err{color:var(--bad);font-size:14px;min-height:21px}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:12px}
+.f{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--muted);font-weight:600}
+.f input,.f select{min-height:40px;border-radius:10px;border:1.5px solid var(--line-2);background:var(--surface);padding:6px 10px;font-size:14px;color:var(--ink);font-weight:500;max-width:230px}
+.f-act{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:4px 0 14px;font-size:15px}
+.crumbs button{border:0;background:none;padding:4px 2px;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.crumbs b{font-weight:700}
+.crumbs .sep{color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.kpi .l{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
+.kpi .l svg{width:16px;height:16px}
+.kpi .v{font-size:28px;font-weight:700;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--muted)}
+.kpi .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+.panel h3{margin:0;font-size:15.5px;display:flex;align-items:center;gap:8px}
+.panel h3 svg{color:var(--brand)}
+.panel .d{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.cw{position:relative;height:300px}
+.cw.s{height:230px}
+.dgrid{display:grid;gap:14px;margin-bottom:14px}
+.d2{grid-template-columns:1.25fr 1fr}
+.d3{grid-template-columns:repeat(3,1fr)}
+.dd{grid-template-columns:1fr 1fr}
+@media (max-width:1000px){.d2,.d3,.dd{grid-template-columns:1fr}}
+.sech{display:flex;align-items:center;gap:10px;margin:22px 0 10px}
+.sech h2{margin:0;font-size:18px}
+.sech .tag{font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{text-align:left;font-size:12.5px;color:var(--muted);font-weight:600;padding:8px;border-bottom:1.5px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+table.t td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13.5px}
+table.t tr.click{cursor:pointer}
+table.t tr.click:hover td{background:var(--surface-2)}
+.tw{overflow:auto;max-height:440px}
+.lv{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.lv svg{width:13px;height:13px;stroke-width:2.6}
+.lv.h{background:var(--bad-soft);color:var(--bad)} .lv.m{background:var(--warn-soft);color:var(--warn)} .lv.l{background:var(--ok-soft);color:var(--ok)} .lv.na{background:var(--surface-2);color:var(--muted)}
+.rca{display:inline-flex;align-items:center;gap:4px;background:var(--bad);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.meter{height:8px;border-radius:99px;background:var(--line);overflow:hidden;min-width:70px}
+.meter i{display:block;height:100%;border-radius:99px}
+.calc{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.gauge{display:flex;align-items:center;gap:16px;margin-top:14px;padding:14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}
+.gauge .big{font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.note-s{font-size:12.5px;color:var(--muted);margin-top:8px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.demo{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<!-- ================= ICONS ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-nurse" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/><path d="M12 15.5v4M10 17.5h4"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 12 5.5 5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/><path d="M12 5.5 9.5 9l2.5 2 2.5-2"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-hosp" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 9h4M12 7v4M9 21v-4h6v4"/></symbol>
+  <symbol id="i-bld" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-4h4v4"/></symbol>
+  <symbol id="i-pill" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+  <symbol id="i-tube" viewBox="0 0 24 24"><path d="M14.5 2v17.5a2.5 2.5 0 0 1-5 0V2"/><path d="M8.5 2h7M14.5 14h-5"/></symbol>
+  <symbol id="i-syr" viewBox="0 0 24 24"><path d="m18 2 4 4M17 7l3-3M19 9 8.7 19.3a2.4 2.4 0 0 1-3.4 0l-.6-.6a2.4 2.4 0 0 1 0-3.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></symbol>
+  <symbol id="i-userx" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M17 8l5 5M22 8l-5 5"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-ref" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo" aria-hidden="true">3A</div>
+    <div class="ttl"><b>แบบสังเกตการปฏิบัติตามหลัก 3A</b><small>การระบุตัวผู้ป่วย (Patient Identification) ปี 2569 · ฝ่ายการพยาบาล</small></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-form" aria-selected="true"><svg class="i"><use href="#i-edit"/></svg><span>บันทึก</span></button>
+      <button class="tab" role="tab" id="tab-dash" aria-selected="false"><svg class="i"><use href="#i-chart"/></svg><span>Dashboard</span></button>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= FORM ================= -->
+<main id="view-form">
+  <div id="demoBanner" class="demo hidden"><svg class="i"><use href="#i-alert"/></svg><span><b>โหมดทดลอง</b> — ยังไม่ได้ใส่ API_URL ใน config.js ข้อมูลเก็บในเครื่องนี้เท่านั้น</span></div>
+  <div class="meta">
+    <div class="clock" title="เวลาที่สังเกต (บันทึกอัตโนมัติ)"><svg class="i"><use href="#i-clock"/></svg><span class="t" id="clk">--:--</span><span class="d" id="clkd"></span></div>
+    <span class="pill" id="todayCount" title="จำนวนที่บันทึกจากเครื่องนี้วันนี้"><svg class="i" style="width:16px;height:16px"><use href="#i-check"/></svg>วันนี้ 0 ราย</span>
+    <span class="pill warn hidden" id="queuePill"><svg class="i" style="width:16px;height:16px"><use href="#i-alert"/></svg><span id="queueTxt"></span><button id="queueBtn">ส่งอีกครั้ง</button></span>
+  </div>
+
+  <div class="grid g2">
+    <section class="card p1" id="sec-staff">
+      <div class="sec-h"><span class="n">1</span><h2>ผู้ถูกสังเกต<span class="star">*</span></h2><span class="req" id="st-staff"></span></div>
+      <div class="sub-l"><svg class="i" style="width:16px;height:16px"><use href="#i-user"/></svg>ตำแหน่ง<span class="star">*</span></div>
+      <div class="tiles t3" id="g-position"></div>
+      <div class="sub-l"><svg class="i" style="width:16px;height:16px"><use href="#i-award"/></svg>อายุงาน<span class="star">*</span></div>
+      <div class="chips" id="g-experience"></div>
+    </section>
+
+    <section class="card p2" id="sec-place">
+      <div class="sec-h"><span class="n">2</span><h2>งานการพยาบาล / หน่วยงาน<span class="star">*</span></h2><span class="req" id="st-place"></span></div>
+      <div class="depts" id="g-dept"></div>
+      <div class="hint" id="deptName">เลือกรหัสงานการพยาบาล</div>
+      <div class="sub-l"><svg class="i" style="width:16px;height:16px"><use href="#i-bld"/></svg>หน่วยงานในสังกัด<span class="star">*</span></div>
+      <select class="sel" id="unit" disabled><option value="">— เลือกงานก่อน —</option></select>
+    </section>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <section class="card p3" id="sec-act">
+      <div class="sec-h"><span class="n">3</span><h2>กิจกรรมที่สังเกต<span class="star">*</span></h2><span class="req" id="st-act"></span></div>
+      <div class="tiles" id="g-activity"></div>
+    </section>
+    <section class="card p4" id="sec-con">
+      <div class="sec-h"><span class="n">4</span><h2>ระดับความรู้สึกตัวของผู้ป่วย<span class="star">*</span></h2><span class="req" id="st-con"></span></div>
+      <div class="tiles" id="g-conscious" style="grid-template-columns:1fr"></div>
+    </section>
+  </div>
+
+  <div class="grid g3" style="margin-top:14px">
+    <section class="a3 ask" id="sec-ask">
+      <div class="a3-h"><span class="ic"><svg class="i"><use href="#i-ask"/></svg></span><div><b>ASK</b><small>5 · ถามด้วยคำถามปลายเปิด</small></div><span class="st" id="st-ask"></span></div>
+      <div class="a3-b">
+        <div id="na-ask" class="na-note hidden"><svg class="i"><use href="#i-userx"/></svg>ผู้ป่วยสื่อสารไม่ได้และไม่มีญาติ — ข้ามไปข้อ 7</div>
+        <div id="q51"><div class="q"><span class="num">5.1</span>สอบถามผู้ป่วย/ญาติ ด้วยคำถามปลายเปิด<span class="star">*</span></div><div class="yn" id="yn-ask"></div></div>
+        <div id="q52"><div class="q"><span class="num">5.2</span>ข้อมูลที่ถาม / หลักฐานระบุตัว<span class="star">*</span> <small style="font-weight:400;color:var(--muted)">(เลือกได้หลายข้อ)</small></div>
+          <div class="chips ev" id="g-askIds"></div><input class="other hidden" id="askOther" placeholder="ระบุอื่นๆ *" autocomplete="off"></div>
+      </div>
+    </section>
+    <section class="a3 ans" id="sec-ans">
+      <div class="a3-h"><span class="ic"><svg class="i"><use href="#i-ear"/></svg></span><div><b>ANSWER</b><small>6 · รับฟังคำตอบ</small></div><span class="st" id="st-ans"></span></div>
+      <div class="a3-b">
+        <div id="na-ans" class="na-note hidden"><svg class="i"><use href="#i-userx"/></svg>ไม่ต้องประเมินข้อนี้</div>
+        <div id="q6"><div class="q"><span class="num">6</span>เจ้าหน้าที่รับฟังคำตอบของผู้ป่วย/ญาติ<span class="star">*</span></div><div class="yn" id="yn-ans"></div></div>
+      </div>
+    </section>
+    <section class="a3 acc" id="sec-acc">
+      <div class="a3-h"><span class="ic"><svg class="i"><use href="#i-shield"/></svg></span><div><b>ACCURATE</b><small>7 · ตรวจสอบความถูกต้อง</small></div><span class="st" id="st-acc"></span></div>
+      <div class="a3-b">
+        <div id="q71"><div class="q"><span class="num">7.1</span>เจ้าหน้าที่ตรวจสอบความถูกต้องของข้อมูล<span class="star">*</span></div><div class="yn" id="yn-acc"></div></div>
+        <div id="q72"><div class="q"><span class="num">7.2</span>หลักฐานการระบุตัวผู้ป่วย<span class="star">*</span> <small style="font-weight:400;color:var(--muted)">(เลือกได้หลายข้อ)</small></div>
+          <div class="chips ev" id="g-accIds"></div><input class="other hidden" id="accOther" placeholder="ระบุอื่นๆ *" autocomplete="off"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:14px">
+    <div class="sec-h"><span class="n" style="background:var(--surface-2);color:var(--muted)">+</span><h2>หมายเหตุ / ข้อสังเกตเพิ่มเติม</h2><span class="req">ไม่บังคับ</span></div>
+    <textarea class="note" id="note" autocomplete="off" placeholder="เช่น สถานการณ์ที่ทำให้ไม่ปฏิบัติ, ภาระงาน, อุปกรณ์ไม่พร้อม (ช่วยในการทำ RCA)"></textarea>
+  </section>
+</main>
+
+<div class="bar" id="bar">
+  <div class="bar-in">
+    <div class="prog">
+      <div class="prog-t"><span class="res" id="res">กรอกข้อมูลให้ครบ</span><span id="progTxt">0/0</span></div>
+      <div class="track"><i id="progBar" style="width:0"></i></div>
+    </div>
+    <button class="btn ghost sm" id="resetBtn" title="ล้างข้อมูลทั้งหมดในแบบฟอร์ม"><svg class="i"><use href="#i-ref"/></svg>ล้างค่า</button>
+    <button class="btn inc" id="saveBtn"><svg class="i"><use href="#i-save"/></svg>บันทึก</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ================= DASHBOARD ================= -->
+<main id="view-dash" class="hidden">
+  <section class="lock card" id="lock">
+    <div class="ic"><svg class="i"><use href="#i-lock"/></svg></div>
+    <h2>Dashboard สถิติ 3A</h2>
+    <p>สำหรับผู้บริหาร/ผู้วิเคราะห์ กรุณาใส่รหัสผ่าน</p>
+    <input class="pin" id="pin" type="password" inputmode="numeric" maxlength="12" autocomplete="off" aria-label="รหัสผ่าน">
+    <div class="err" id="pinErr"></div>
+    <button class="btn" id="pinBtn" style="width:100%">เข้าสู่ Dashboard</button>
+  </section>
+
+  <div id="dash" class="hidden">
+    <div id="demoBanner2" class="demo hidden"><svg class="i"><use href="#i-alert"/></svg><span>โหมดทดลอง: ข้อมูลในเครื่องนี้เท่านั้น (ใส่รหัสใดก็ได้)</span><button class="btn ghost sm" id="genDemo">สร้างข้อมูลตัวอย่าง 600 รายการ</button><button class="btn ghost sm" id="clrDemo">ล้างข้อมูลทดลอง</button></div>
+    <div class="filters">
+      <label class="f">ตั้งแต่<input type="date" id="fFrom"></label>
+      <label class="f">ถึง<input type="date" id="fTo"></label>
+      <label class="f">งานการพยาบาล<select id="fDept"></select></label>
+      <label class="f">หน่วยงาน<select id="fUnit"></select></label>
+      <label class="f">กิจกรรม<select id="fAct"></select></label>
+      <label class="f">ตำแหน่ง<select id="fPos"></select></label>
+      <label class="f">เวร<select id="fShift"></select></label>
+      <div class="f-act">
+        <button class="btn ghost sm" id="reload"><svg class="i"><use href="#i-ref"/></svg>ดึงข้อมูลล่าสุด</button>
+        <button class="btn ghost sm" id="expObs"><svg class="i"><use href="#i-dl"/></svg>Export CSV</button>
+        <a class="btn ghost sm hidden" id="openSheet" target="_blank" rel="noopener"><svg class="i"><use href="#i-sheet"/></svg>Google Sheet</a>
+        <button class="btn ghost sm" id="logout" aria-label="ออกจาก Dashboard" title="ออกจาก Dashboard"><svg class="i"><use href="#i-logout"/></svg></button>
+      </div>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="dgrid d2">
+      <div class="panel"><h3><svg class="i"><use href="#i-target"/></svg><span id="c1t">อัตราปฏิบัติครบ 3A</span></h3><div class="d" id="c1d">คลิกแท่งเพื่อเจาะลึก (drill down)</div><div class="cw" id="c1w"><canvas id="c1"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-alert"/></svg>จุดที่ไม่ปฏิบัติ (Failure point) แยก Ask / Answer / Accurate</h3><div class="d">% ไม่ปฏิบัติในแต่ละขั้น — ขั้นที่สูงสุดคือจุดเริ่มวิเคราะห์ RCA</div><div class="cw" id="c2w"><canvas id="c2"></canvas></div></div>
+    </div>
+    <div class="dgrid d2">
+      <div class="panel"><h3><svg class="i"><use href="#i-pulse"/></svg>แนวโน้มตามเวลา</h3><div class="d" id="c3d"></div><div class="cw s"><canvas id="c3"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-pill"/></svg>แยกตามกิจกรรม</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c4"></canvas></div></div>
+    </div>
+    <div class="dgrid d3">
+      <div class="panel"><h3><svg class="i"><use href="#i-user"/></svg>ตำแหน่ง &amp; อายุงาน</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c5"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-users"/></svg>ระดับความรู้สึกตัวผู้ป่วย</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c8"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-shield"/></svg>หลักฐานที่ใช้ระบุตัว</h3><div class="d">จำนวนครั้งที่ใช้ (5.2 ถาม / 7.2 ตรวจสอบ)</div><div class="cw s"><canvas id="c6"></canvas></div></div>
+    </div>
+
+    <div class="sech"><h2>การทำนายความเสี่ยงการไม่ปฏิบัติตาม</h2><span class="tag">Predictive</span></div>
+    <div class="dgrid dd">
+      <div class="panel"><h3><svg class="i"><use href="#i-alert"/></svg>ปัจจัยเสี่ยง: โอกาสไม่ปฏิบัติครบ 3A ที่คาดการณ์</h3><div class="d" id="c9d">จาก Logistic regression (ปรับอิทธิพลของปัจจัยอื่นแล้ว)</div><div class="cw" style="height:420px"><canvas id="c9"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-target"/></svg>เครื่องคำนวณโอกาสเกิดความเสี่ยง</h3><div class="d">เลือกสถานการณ์ เพื่อประเมินโอกาสที่จะไม่ปฏิบัติตามหลัก 3A</div>
+        <div class="calc" id="calc"></div>
+        <div class="gauge"><div><div class="big" id="gV">–</div><div class="note-s" style="margin:4px 0 0">โอกาสไม่ปฏิบัติครบ 3A</div></div><div style="flex:1"><div id="gL"></div><div class="meter" style="margin-top:8px;height:12px"><i id="gM" style="width:0"></i></div><div class="note-s" id="gN"></div></div></div>
+        <div class="note-s" id="modelNote"></div>
+      </div>
+    </div>
+
+
+    <div class="panel"><h3><svg class="i"><use href="#i-sheet"/></svg>ข้อมูลการสังเกตล่าสุด</h3><div class="d" id="rawD"></div><div class="tw"><table class="t" id="rawT"></table></div></div>
+  </div>
+</main>
+
+<script>
+/* ======================= DATA ======================= */
+const DEPTS = [{"code":"OPD1","name":"งานการพยาบาลผู้ป่วยนอก 1","units":[["RAOFM","หน่วยตรวจผู้ป่วยนอกเวชศาสตร์ครอบครัว"],["RAOCC","หน่วยตรวจผู้ป่วยนอกมะเร็ง"],["RAOAM","หน่วยตรวจผู้ป่วยนอกแพทย์ทางเลือก"],["RAOPH","หน่วยบริการสุขภาพบุคลากร"],["RAOPS","หน่วยตรวจผู้ป่วยนอกจิตเวช"],["RAECT","หน่วยรักษาด้วยการกระตุ้นสมอง"],["RAOGY","หน่วยตรวจผู้ป่วยนอกนรีเวช"],["RAOOB","หน่วยตรวจผู้ป่วยนอกสูติกรรม"],["RAORH","หน่วยตรวจผู้ป่วยนอกเวชศาสตร์ฟื้นฟู"],["RAOER","หน่วยตรวจโรคฉุกเฉินและกู้ชีพ"],["RAOOU","หน่วยรอดูอาการผู้ป่วยฉุกเฉิน"],["RAARU","หน่วยรถพยาบาลการแพทย์ฉุกเฉินและส่งต่อ"],["RAOGP","หน่วยตรวจผู้ป่วยนอกทั่วไป"]]},{"code":"OPD2","name":"งานการพยาบาลผู้ป่วยนอก 2","units":[["SDOMD","หน่วยตรวจผู้ป่วยนอกอายุรกรรม"],["SDODM","หน่วยตรวจผู้ป่วยนอกผิวหนัง"],["SDOET","หน่วยตรวจผู้ป่วยนอกโสต ศอ นาสิก"],["SDOSU","หน่วยตรวจผู้ป่วยนอกศัลยกรรม"],["SDORP","หน่วยตรวจผู้ป่วยนอกออร์โธปิดิกส์"],["SDOEY","หน่วยตรวจผู้ป่วยนอกจักษุ"],["SDOIU","หน่วยหัตถการและสังเกตอาการ"],["SDOSP","หน่วยประเมินและเตรียมความพร้อมผู้ป่วยก่อนผ่าตัด"]]},{"code":"OPDPM","name":"งานการพยาบาลผู้ป่วยนอกระบบพิเศษ","units":[["SDPMD","หน่วยตรวจผู้ป่วยนอกพิเศษอายุรกรรม"],["SDPOS","หน่วยตรวจผู้ป่วยนอกพิเศษศัลยกรรมและออร์โธปิดิกส์"],["SDPOG","หน่วยตรวจผู้ป่วยนอกพิเศษสูติ-นรีเวช"],["SDPPD","หน่วยตรวจผู้ป่วยนอกพิเศษเด็ก"],["SDPEY","หน่วยตรวจผู้ป่วยนอกพิเศษจักษุ"],["SDPET","หน่วยตรวจผู้ป่วยนอกพิเศษโสต ศอ นาสิก"],["SDPDS","หน่วยตรวจผู้ป่วยนอกพิเศษเวชสำอางและศัลยกรรมตกแต่ง"],["SDPPS","หน่วยประเมินและเตรียมความพร้อมผู้ป่วยพิเศษก่อนผ่าตัด"],["QSPCM","หน่วยตรวจผู้ป่วยนอกพิเศษสิริกิติ์"],["RHPK","หน่วยตรวจผู้ป่วยนอกพิเศษ ศูนย์สุขภาพรามาธิบดีพาราไดซ์พาร์ค"]]},{"code":"IPD1","name":"งานการพยาบาลผู้ป่วยใน 1","units":[["RA5NE","หอผู้ป่วยพิเศษศัลยกรรม"],["RA5SE","หอผู้ป่วยศัลยกรรมหญิง"],["RA5SW","หอผู้ป่วยศัลยกรรมชาย"],["RA9SE","หอผู้ป่วยศัลยกรรมชาย-หญิง"],["RA4TW","หอผู้ป่วยศัลยกรรมอุบัติเหตุ"],["RA2TP","หอผู้ป่วยพิเศษออร์โธปิดิกส์"],["RA2TC","หอผู้ป่วยออร์โธปิดิกส์ชาย-หญิง"],["RA1RH","หอผู้ป่วยเวชศาสตร์ฟื้นฟู"]]},{"code":"IPD2","name":"งานการพยาบาลผู้ป่วยใน 2","units":[["RA4NE","หอผู้ป่วยพิเศษสูติ-นรีเวช"],["RA4NW","หอผู้ป่วยนรีเวช"],["RA6SW","หอผู้ป่วยสูติกรรม"],["RA3NW","หอผู้ป่วยจักษุ โสต ศอ นาสิก หญิง"],["RA6NW","หอผู้ป่วยจักษุ โสต ศอ นาสิก ชาย"],["RA6NE","หอผู้ป่วยพิเศษจักษุ โสต ศอ นาสิก"],["RAHSU1","หอผู้ป่วยระยะสั้น 1"],["RA6SE","หอผู้ป่วยระยะสั้น 2"]]},{"code":"IPD3","name":"งานการพยาบาลผู้ป่วยใน 3","units":[["RA7SW","หอผู้ป่วยอายุรกรรมชาย"],["RA7SE","หอผู้ป่วยอายุรกรรมหญิง"],["RA9SW","หอผู้ป่วยอายุรกรรมชาย-หญิง"],["RA7NE","หอผู้ป่วยพิเศษอายุรกรรม"],["RA1OW","หอผู้ป่วยสังเกตอาการหญิง"],["RA2OW","หอผู้ป่วยสังเกตอาการชาย"],["RA3OW","หอผู้ป่วยสังเกตอาการอายุรกรรม"],["QSPSY","หอผู้ป่วยจิตเวช"],["RARPU","หอผู้ป่วยประคับประคอง"]]},{"code":"IPDPM1","name":"งานการพยาบาลผู้ป่วยในระบบพิเศษ 1","units":[["QSIPD71","หอผู้ป่วยปลูกถ่ายไขกระดูก"],["QSIPD72","หอผู้ป่วยปลูกถ่ายอวัยวะ"],["QSIPD81","หอผู้ป่วยพิเศษอาคารสิริกิติ์ 81"],["QSIPD82","หอผู้ป่วยพิเศษอาคารสิริกิติ์ 82"],["QSIPD91","หอผู้ป่วยพิเศษอาคารสิริกิติ์ 91"],["QSIPD92","หอผู้ป่วยพิเศษอาคารสิริกิติ์ 92"],["QSIPD93","หอผู้ป่วยพิเศษอาคารสิริกิติ์ 93"]]},{"code":"IPDPM2","name":"งานการพยาบาลผู้ป่วยในระบบพิเศษ 2","units":[["SDIPD62","หอผู้ป่วยพิเศษ 62"],["SDIPD63","หอผู้ป่วยพิเศษ 63"],["SDIPD64","หอผู้ป่วยพิเศษ 64"],["SDIPD65","หอผู้ป่วยพิเศษ 65"],["SDIPD72","หอผู้ป่วยพิเศษ 72"],["SDIPD73","หอผู้ป่วยพิเศษ 73"],["SDIPD74","หอผู้ป่วยพิเศษ 74"],["SDIPD75","หอผู้ป่วยพิเศษ 75 (ยังไม่เปิด)"],["SDIPD76","หอผู้ป่วยพิเศษ 76"],["SDIPD81","หอผู้ป่วยพิเศษ 81"],["SDIPD82","หอผู้ป่วยพิเศษ 82"],["SDIPD83","หอผู้ป่วยพิเศษ 83"],["SDIPD85","หอผู้ป่วยพิเศษ 85"],["SDIPD86","หอผู้ป่วยพิเศษ 86"],["SDNS61","หอบริบาลพิเศษทารกแรกเกิด"],["SDIPD96","หอผู้ป่วยพิเศษ 96 (ยังไม่เปิด)"]]},{"code":"PED","name":"งานการพยาบาลผู้ป่วยเด็ก","units":[["RAOPD","หน่วยตรวจผู้ป่วยนอกเด็กและวัยรุ่น"],["RA8SE","หอผู้ป่วยเด็กเล็ก"],["RA8NW","หอผู้ป่วยเด็กและวัยรุ่น"],["RA4SP","หอผู้ป่วยทารกแรกเกิด"],["RA8SW","หอผู้ป่วยเด็กเคมีบำบัดและปลูกถ่ายไขกระดูก"],["RA8NE","หอผู้ป่วยเด็กโรคติดเชื้อ"],["RA8IC","หอผู้ป่วยวิกฤตทารกแรกเกิด"],["RA9PC","หอผู้ป่วยวิกฤตเด็ก"],["RA8NC","หอผู้ป่วยกึ่งวิกฤตเด็ก"],["RA9NE","หอผู้ป่วยศัลยกรรมเด็ก"]]},{"code":"ICU1","name":"งานการพยาบาลวิกฤต 1","units":[["RA1TI","หอผู้ป่วยกึ่งวิกฤตออร์โธปิดิกส์"],["RA3IC","หอผู้ป่วยวิกฤตผ่าตัด"],["QS4IC","หอผู้ป่วยวิกฤตศัลยกรรมหัวใจและทรวงอก"],["RA4IT","หอผู้ป่วยวิกฤตศัลยกรรมอุบัติเหตุ"],["RA5IC","หอผู้ป่วยวิกฤตศัลยกรรม"],["RA5NB","หอผู้ป่วยอุบัติเหตุไฟไหม้"],["RA5NW","หอผู้ป่วยกึ่งวิกฤตศัลยกรรม"]]},{"code":"ICU2","name":"งานการพยาบาลวิกฤต 2","units":[["SDICU51","หอผู้ป่วยพิเศษวิกฤต 51"],["SDHD","หน่วยไตเทียมพิเศษ"],["SDCCU91","หอผู้ป่วยพิเศษวิกฤตหัวใจ 91"],["SDICU92","หอผู้ป่วยพิเศษวิกฤต 92"],["SDICU95","หอผู้ป่วยพิเศษวิกฤต 95"],["QSICU8","หอผู้ป่วยวิกฤตอาคารสิริกิติ์"],["QSVA04","หอผู้ป่วยหลังทำหัตถการหัวใจ"],["RA9IC","หอผู้ป่วยวิกฤตอายุรกรรม"],["RA9CC","หอผู้ป่วยวิกฤตอายุรกรรมหัวใจ"],["RA7NW","หอผู้ป่วยกึ่งวิกฤตอายุรกรรม"],["RAASU","หอผู้ป่วยโรคหลอดเลือดสมอง"],["QSHD5","หน่วยไตเทียม"],["SDNICU6","หอผู้ป่วยพิเศษวิกฤตทารกแรกเกิด"]]},{"code":"OR","name":"งานการพยาบาลห้องผ่าตัด","units":[["RAXSU","ห้องผ่าตัดศัลยกรรม"],["RAXRP","ห้องผ่าตัดออร์โธปิดิกส์"],["RAXET","ห้องผ่าตัดโสต ศอ นาสิก"],["RAXEY","ห้องผ่าตัดจักษุ"],["RAXGY","ห้องผ่าตัดสูติ-นรีเวช"],["RAXRR","ห้องพักฟื้นศัลยกรรม"],["QSXSK","ห้องผ่าตัดอาคารสิริกิติ์"],["RALR4","ห้องคลอด"],["SDLR6","ห้องคลอดพิเศษ"],["SDOR5","ห้องผ่าตัดอาคารสมเด็จพระเทพรัตน์"]]},{"code":"SUPPORT","name":"งานการพยาบาลสนับสนุนการรักษา","units":[["RASCU","หน่วยพยาบาลคัดกรองและปรึกษาด้านสุขภาพ"],["RAHHC1","หน่วยพยาบาลบริการผู้ป่วยที่บ้าน1"],["SDHHC2","หน่วยพยาบาลบริการผู้ป่วยที่บ้าน2"],["RASSS1","หน่วยบำบัดระยะสั้นและเคมีบำบัด 1"],["SDSSS2","หน่วยบำบัดระยะสั้นและเคมีบำบัด 2"],["SDLMB","หน่วยบริบาลนมแม่และธนาคารนมแม่"],["SDHCC","หน่วยให้คำปรึกษาด้านสุขภาพทางโทรศัพท์"],["SDNC","หน่วยประสานด้านการรักษาพยาบาลระบบพิเศษ"],["SDIVN","หน่วยพยาบาลให้สารน้ำทางหลอดเลือด"],["QSTC","หน่วยพยาบาลประสานงานการปลูกถ่ายอวัยวะ"],["RAHTU","หน่วยบริการหัตถการ"],["PCU","หน่วยพยาบาลบริการชุมชน"]]}];
+const DEPT = Object.fromEntries(DEPTS.map(d => [d.code, d]));
+const UNIT = {}; DEPTS.forEach(d => d.units.forEach(u => UNIT[u[0]] = { code: u[0], name: u[1], dept: d.code }));
+
+const POS = [
+  { v: 'พยาบาล', icon: 'nurse' },
+  { v: 'ผู้ช่วยพยาบาล', icon: 'heart' },
+  { v: 'ผู้ปฏิบัติงานบริหาร/ธุรการ', icon: 'clip', sub: 'หอผู้ป่วย-หน่วยตรวจ' }];
+const EXP = [{ v: '<2 ปี', label: 'น้อยกว่า 2 ปี' }, { v: '2-5 ปี', label: '2 – 5 ปี' }, { v: '>5 ปี', label: 'มากกว่า 5 ปี' }];
+const ACT = [
+  { v: 'การบริหารยา', icon: 'pill' }, { v: 'การให้เลือด', icon: 'drop' },
+  { v: 'การส่งสิ่งส่งตรวจทางห้องปฏิบัติการ', icon: 'tube', short: 'ส่งสิ่งส่งตรวจ' },
+  { v: 'การผ่าตัด/ทำหัตถการ', icon: 'syr', short: 'ผ่าตัด/หัตถการ' },
+  { v: 'การส่งมอบเอกสารผู้ป่วย', icon: 'file', short: 'ส่งมอบเอกสาร' }];
+const CON = [
+  { v: 'สื่อสารได้เอง', label: 'ผู้ป่วยสามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
+  { v: 'สื่อสารไม่ได้ มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และมีญาติ/ผู้ดูแล', icon: 'users', sub: 'ถามญาติ · ประเมินครบ 3A' },
+  { v: 'สื่อสารไม่ได้ ไม่มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และไม่มีญาติ/ผู้ดูแล', icon: 'userx', sub: 'ประเมินเฉพาะ Accurate (7.1, 7.2)' }];
+const NOCOMM = CON[2].v;
+const ASK_IDS = ['ชื่อ-นามสกุล', 'วันเดือนปีเกิด', 'ชื่อ-นามสกุลมารดา', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
+const ACC_IDS = ['ป้ายข้อมือ/ข้อเท้า', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
+const SHIFTS = ['เช้า', 'บ่าย', 'ดึก'];
+const YES = 'ปฏิบัติ', NO = 'ไม่ปฏิบัติ';
+const RISK_HI = 0.20, RISK_MID = 0.10;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ico = (n, cls = 'i') => `<svg class="${cls}"><use href="#i-${n}"/></svg>`;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
+  sget(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+  sset(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) { } }
+};
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+/* ======================= API (Google Apps Script ผ่าน fetch หรือโหมดทดลอง) ======================= */
+const API_URL = String((window.APP_CONFIG && window.APP_CONFIG.API_URL) || '').trim();
+const LIVE = /^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL);
+async function call(payload, timeoutMs = 30000) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    // text/plain = ไม่เกิด CORS preflight กับ Apps Script
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', signal: ctl.signal });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+    return j.data;
+  } catch (e) { if (e.name === 'AbortError') throw new Error('เซิร์ฟเวอร์ตอบช้า ลองใหม่อีกครั้ง'); throw e; }
+  finally { clearTimeout(t); }
+}
+// ปลุกสคริปต์ตั้งแต่เปิดหน้า เพื่อให้การบันทึกครั้งแรกเร็วขึ้น
+if (LIVE) { try { fetch(API_URL, { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(() => { }); } catch (e) { } }
+function evaluate(r) {
+  const noComm = r.consciousness === NOCOMM;
+  const ask = noComm ? 'NA' : (r.ask_5_1 === YES ? 1 : 0);
+  const answer = noComm ? 'NA' : (r.answer_6 === YES ? 1 : 0);
+  const accurate = r.accurate_7_1 === YES ? 1 : 0;
+  const failed = []; if (ask === 0) failed.push('Ask'); if (answer === 0) failed.push('Answer'); if (accurate === 0) failed.push('Accurate');
+  return { ask, answer, accurate, compliant: failed.length ? 0 : 1, failed };
+}
+function shiftOf(d) { const h = d.getHours(); return h >= 8 && h < 16 ? 'เช้า' : (h >= 16 ? 'บ่าย' : 'ดึก'); }
+function demoRow(rec, when) {
+  const d = evaluate(rec), t = when || new Date();
+  return { id: rec.id, timestamp: t.toISOString(), date: ymd(t), time: `${pad(t.getHours())}:${pad(t.getMinutes())}`, shift: shiftOf(t),
+    position: rec.position, experience: rec.experience, dept_code: rec.dept_code, dept_name: rec.dept_name,
+    unit_code: rec.unit_code, unit_name: rec.unit_name, activity: rec.activity, consciousness: rec.consciousness,
+    ask_5_1: rec.ask_5_1, ask_5_2_evidence: (rec.ask_5_2 || []).join(', '), ask_5_2_other: rec.ask_5_2_other, answer_6: rec.answer_6,
+    accurate_7_1: rec.accurate_7_1, accurate_7_2_evidence: (rec.accurate_7_2 || []).join(', '), accurate_7_2_other: rec.accurate_7_2_other,
+    ask_ok: d.ask, answer_ok: d.answer, accurate_ok: d.accurate, compliant_3A: d.compliant, failed_steps: d.failed.join(', '), note: rec.note };
+}
+const api = {
+  save(rec) {
+    if (LIVE) return call({ action: 'save', rec });
+    const all = store.get('demo3a_obs', []); if (!all.some(x => x.id === rec.id)) all.push(demoRow(rec)); store.set('demo3a_obs', all);
+    return Promise.resolve({ ok: true, compliant: evaluate(rec).compliant });
+  },
+  data(pw) {
+    if (LIVE) return call({ action: 'data', pw }, 60000);
+    if (!pw) return Promise.reject(new Error('ใส่รหัสผ่าน'));  // โหมดทดลอง: ไม่ตรวจรหัส (รหัสจริงอยู่ที่ Code.gs เท่านั้น)
+    return Promise.resolve({ obs: store.get('demo3a_obs', []), sheetUrl: '' });
+  }
+};
+
+/* ======================= FORM ======================= */
+const F = {};
+// ล้างค่าทุกช่อง (รวมงาน หน่วยงาน) ไม่ให้ข้อมูลเดิมค้างในการบันทึกครั้งถัดไป
+function blank() {
+  Object.assign(F, { dept: null, unit: null, position: null, experience: null, activity: null, consciousness: null, ask: null, askIds: [], answer: null, acc: null, accIds: [] });
+  ['#askOther', '#accOther', '#note'].forEach(s => $(s).value = '');
+  document.querySelectorAll('.miss').forEach(e => e.classList.remove('miss'));
+}
+try { localStorage.removeItem('3a_prefs'); } catch (e) { }
+blank();
+
+function chipBtn(label, pressed, extra = '') { return `<button type="button" class="chip" aria-pressed="${pressed}" ${extra}><span class="ck">${ico('check')}</span>${esc(label)}</button>`; }
+function tileBtn(o, pressed) {
+  return `<button type="button" class="tile" aria-pressed="${pressed}" data-v="${esc(o.v)}"><span class="ic">${ico(o.icon)}</span><span>${esc(o.label || o.v)}${o.sub ? `<br><small>${esc(o.sub)}</small>` : ''}</span></button>`;
+}
+function ynBtns(key) {
+  return `<button type="button" class="y" data-k="${key}" data-v="${YES}" aria-pressed="${F[key] === YES}">${ico('check')}ปฏิบัติ</button>` +
+    `<button type="button" class="n" data-k="${key}" data-v="${NO}" aria-pressed="${F[key] === NO}">${ico('x')}ไม่ปฏิบัติ</button>`;
+}
+function renderForm() {
+  $('#g-position').innerHTML = POS.map(o => tileBtn(o, F.position === o.v)).join('');
+  $('#g-experience').innerHTML = EXP.map(o => chipBtn(o.label, F.experience === o.v, `data-v="${esc(o.v)}"`)).join('');
+  $('#g-dept').innerHTML = DEPTS.map(d => `<button type="button" class="dept" aria-pressed="${F.dept === d.code}" data-v="${d.code}" title="${esc(d.name)}">${d.code}</button>`).join('');
+  $('#g-activity').innerHTML = ACT.map(o => tileBtn(o, F.activity === o.v)).join('');
+  $('#g-conscious').innerHTML = CON.map(o => tileBtn(o, F.consciousness === o.v)).join('');
+  $('#yn-ask').innerHTML = ynBtns('ask'); $('#yn-ans').innerHTML = ynBtns('answer'); $('#yn-acc').innerHTML = ynBtns('acc');
+  $('#g-askIds').innerHTML = ASK_IDS.map(v => chipBtn(v, F.askIds.includes(v), `data-v="${esc(v)}"`)).join('');
+  $('#g-accIds').innerHTML = ACC_IDS.map(v => chipBtn(v, F.accIds.includes(v), `data-v="${esc(v)}"`)).join('');
+  const sel = $('#unit');
+  if (F.dept) {
+    const d = DEPT[F.dept];
+    $('#deptName').innerHTML = `${ico('hosp', 'i')} <b>${esc(d.name)}</b>`; $('#deptName').style.display = 'flex'; $('#deptName').style.gap = '6px'; $('#deptName').style.alignItems = 'center';
+    sel.disabled = false;
+    sel.innerHTML = `<option value="">— เลือกหน่วยงาน (${d.units.length}) —</option>` + d.units.map(u => `<option value="${u[0]}" ${F.unit === u[0] ? 'selected' : ''}>${esc(u[1])} (${u[0]})</option>`).join('');
+  } else { sel.disabled = true; sel.innerHTML = '<option value="">— เลือกงานก่อน —</option>'; }
+  refresh();
+}
+function onGroup(id, fn) { $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { fn(b.dataset.v, b); renderForm(); } }); }
+onGroup('#g-position', v => F.position = v);
+onGroup('#g-experience', v => F.experience = v);
+onGroup('#g-dept', v => { if (F.dept !== v) { F.dept = v; F.unit = null; } });
+onGroup('#g-activity', v => F.activity = v);
+onGroup('#g-conscious', v => F.consciousness = v);
+['#yn-ask', '#yn-ans', '#yn-acc'].forEach(id => onGroup(id, (v, b) => { F[b.dataset.k] = F[b.dataset.k] === v ? null : v; }));
+onGroup('#g-askIds', v => { F.askIds = F.askIds.includes(v) ? F.askIds.filter(x => x !== v) : [...F.askIds, v]; });
+onGroup('#g-accIds', v => { F.accIds = F.accIds.includes(v) ? F.accIds.filter(x => x !== v) : [...F.accIds, v]; });
+$('#unit').addEventListener('change', e => { F.unit = e.target.value || null; refresh(); });
+['#askOther', '#accOther'].forEach(s => $(s).addEventListener('input', refresh));
+
+function status() {
+  const noComm = F.consciousness === NOCOMM;
+  const askOn = !noComm, askIdsOn = askOn && F.ask === YES, accIdsOn = F.acc === YES;
+  const req = [
+    ['sec-staff', !!F.position], ['sec-staff', !!F.experience], ['sec-place', !!F.dept], ['sec-place', !!F.unit],
+    ['sec-act', !!F.activity], ['sec-con', !!F.consciousness]];
+  if (askOn) { req.push(['sec-ask', !!F.ask], ['sec-ans', !!F.answer]); }
+  if (askIdsOn) req.push(['sec-ask', F.askIds.length > 0 && (!F.askIds.includes('อื่นๆ') || $('#askOther').value.trim())]);
+  req.push(['sec-acc', !!F.acc]);
+  if (accIdsOn) req.push(['sec-acc', F.accIds.length > 0 && (!F.accIds.includes('อื่นๆ') || $('#accOther').value.trim())]);
+  return { req, noComm, askOn, askIdsOn, accIdsOn, done: req.filter(r => r[1]).length };
+}
+function setDisabled(container, off) { container.querySelectorAll('button,input').forEach(b => b.disabled = off); container.classList.toggle('dis', off); }
+function badge(ok) { return ok == null ? '' : `<span class="st-badge ${ok ? 'ok' : 'bad'}">${ico(ok ? 'check' : 'x')}${ok ? 'ปฏิบัติ' : 'ไม่ปฏิบัติ'}</span>`; }
+function refresh() {
+  const s = status();
+  $('#na-ask').classList.toggle('hidden', !s.noComm); $('#na-ans').classList.toggle('hidden', !s.noComm);
+  setDisabled($('#q51'), !s.askOn); setDisabled($('#q6'), !s.askOn); setDisabled($('#q52'), !s.askIdsOn); setDisabled($('#q72'), !s.accIdsOn);
+  $('#askOther').classList.toggle('hidden', !F.askIds.includes('อื่นๆ')); $('#accOther').classList.toggle('hidden', !F.accIds.includes('อื่นๆ'));
+  $('#st-ask').innerHTML = s.askOn ? badge(F.ask ? F.ask === YES : null) : '<span class="st-badge">N/A</span>';
+  $('#st-ans').innerHTML = s.askOn ? badge(F.answer ? F.answer === YES : null) : '<span class="st-badge">N/A</span>';
+  $('#st-acc').innerHTML = badge(F.acc ? F.acc === YES : null);
+  const secDone = id => s.req.filter(r => r[0] === id).every(r => r[1]);
+  [['st-staff', 'sec-staff'], ['st-place', 'sec-place'], ['st-act', 'sec-act'], ['st-con', 'sec-con']].forEach(([el, sec]) => {
+    $('#' + el).innerHTML = secDone(sec) ? `<span class="done" style="display:flex;align-items:center;gap:4px">${ico('check', 'i')}ครบ</span>` : 'จำเป็น';
+  });
+  const total = s.req.length, pct = Math.round(100 * s.done / total);
+  $('#progTxt').textContent = `${s.done}/${total}`; $('#progBar').style.width = pct + '%';
+  const complete = s.done === total;
+  $('#saveBtn').classList.toggle('inc', !complete);
+  const answered = F.consciousness && F.acc && (s.noComm || (F.ask && F.answer));
+  if (answered) {
+    const ev = evaluate(record());
+    $('#res').innerHTML = ev.compliant ? `<span class="st-badge ok">${ico('check')}ปฏิบัติครบ 3A</span>` : `<span class="st-badge bad">${ico('x')}ไม่ครบ: ${ev.failed.join(', ')}</span>`;
+  } else $('#res').textContent = complete ? 'พร้อมบันทึก' : `กรอกอีก ${total - s.done} ข้อ`;
+  document.querySelectorAll('.miss').forEach(e => { if (secDone(e.id)) e.classList.remove('miss'); });
+}
+function record() {
+  const s = status(), d = DEPT[F.dept], u = UNIT[F.unit];
+  return {
+    id: uid(), position: F.position, experience: F.experience,
+    dept_code: F.dept, dept_name: d ? d.name : '', unit_code: F.unit, unit_name: u ? u.name : '',
+    activity: F.activity, consciousness: F.consciousness,
+    ask_5_1: s.askOn ? F.ask : 'N/A', ask_5_2: s.askIdsOn ? F.askIds : [], ask_5_2_other: s.askIdsOn && F.askIds.includes('อื่นๆ') ? $('#askOther').value.trim() : '',
+    answer_6: s.askOn ? F.answer : 'N/A',
+    accurate_7_1: F.acc, accurate_7_2: s.accIdsOn ? F.accIds : [], accurate_7_2_other: s.accIdsOn && F.accIds.includes('อื่นๆ') ? $('#accOther').value.trim() : '',
+    note: $('#note').value.trim(), client_time: new Date().toISOString()
+  };
+}
+function toast(html, ms = 2600) { const t = $('#toast'); t.innerHTML = html; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), ms); }
+
+/* offline queue: ถ้าเน็ตหลุด เก็บไว้ส่งภายหลัง */
+const Q_KEY = '3a_queue';
+function queueUI() { const q = store.get(Q_KEY, []); $('#queuePill').classList.toggle('hidden', !q.length); $('#queueTxt').textContent = `รอส่ง ${q.length} รายการ`; }
+async function flushQueue() {
+  let q = store.get(Q_KEY, []); if (!q.length) return;
+  for (const rec of [...q]) { try { await api.save(rec); q = q.filter(x => x.id !== rec.id); store.set(Q_KEY, q); } catch (e) { break; } }
+  queueUI(); if (!q.length) toast(`${ico('check')}ส่งข้อมูลที่ค้างครบแล้ว`);
+}
+$('#queueBtn').addEventListener('click', flushQueue);
+function bumpToday() { const k = ymd(new Date()); const c = store.get('3a_today', {}); c[k] = (c[k] || 0) + 1; store.set('3a_today', { [k]: c[k] }); showToday(); }
+function showToday() { const c = store.get('3a_today', {}); $('#todayCount').lastChild.textContent = `วันนี้ ${c[ymd(new Date())] || 0} ราย`; }
+
+$('#saveBtn').addEventListener('click', async () => {
+  const s = status();
+  if (s.done !== s.req.length) { const m = s.req.find(r => !r[1]); const el = $('#' + m[0]); el.classList.add('miss'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); toast(`${ico('alert')}กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบ`); return; }
+  const rec = record(), ev = evaluate(rec), btn = $('#saveBtn');
+  btn.disabled = true; btn.innerHTML = `${ico('ref')}กำลังบันทึก…`;
+  try { await api.save(rec); toast(`${ico(ev.compliant ? 'check' : 'alert')}บันทึกแล้ว · ${ev.compliant ? 'ปฏิบัติครบ 3A' : 'ไม่ครบ: ' + ev.failed.join(', ')}`); }
+  catch (e) { const q = store.get(Q_KEY, []); q.push(rec); store.set(Q_KEY, q); queueUI(); toast(`${ico('alert')}ส่งไม่สำเร็จ เก็บไว้ส่งภายหลัง`, 3500); }
+  bumpToday(); btn.disabled = false; btn.innerHTML = `${ico('save')}บันทึก`; blank(); renderForm(); window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+$('#resetBtn').addEventListener('click', () => { if (status().done > 0 && !confirm('ล้างข้อมูลทั้งหมดในแบบฟอร์ม?')) return; blank(); renderForm(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast(`${ico('ref')}ล้างค่าแล้ว`); });
+
+function tick() {
+  const d = new Date();
+  $('#clk').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  $('#clkd').textContent = d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + ' · เวร' + shiftOf(d);
+}
+tick(); setInterval(tick, 15000);
+renderForm(); queueUI(); showToday();
+setInterval(flushQueue, 60000); flushQueue();
+if (!LIVE) { $('#demoBanner').classList.remove('hidden'); $('#demoBanner2').classList.remove('hidden'); }
+
+/* ======================= TABS ======================= */
+function showTab(t) {
+  const dash = t === 'dash';
+  $('#tab-form').setAttribute('aria-selected', !dash); $('#tab-dash').setAttribute('aria-selected', dash);
+  $('#view-form').classList.toggle('hidden', dash); $('#bar').classList.toggle('hidden', dash); $('#view-dash').classList.toggle('hidden', !dash);
+  if (dash) loadChart().catch(() => { });
+  if (dash && !D.pw) setTimeout(() => $('#pin').focus(), 50);
+  if (dash && D.pw) renderDash();
+}
+$('#tab-form').addEventListener('click', () => showTab('form'));
+$('#tab-dash').addEventListener('click', () => showTab('dash'));
+
+/* ======================= DASHBOARD ======================= */
+const D = { pw: null, obs: [], dept: '', unit: '', charts: {} };
+async function login(pw, silent) {
+  $('#pinErr').textContent = ''; $('#pinBtn').disabled = true; $('#pinBtn').textContent = 'กำลังตรวจสอบ…';
+  try {
+    const r = await api.data(pw); D.pw = pw; store.sset('3a_pw', pw); load(r);
+    $('#lock').classList.add('hidden'); $('#dash').classList.remove('hidden'); initFilters(); renderDash();
+  } catch (e) { if (!silent) $('#pinErr').textContent = (e && e.message) || 'รหัสผ่านไม่ถูกต้อง'; store.sset('3a_pw', null); }
+  $('#pinBtn').disabled = false; $('#pinBtn').textContent = 'เข้าสู่ Dashboard';
+}
+$('#pinBtn').addEventListener('click', () => login($('#pin').value.trim()));
+$('#pin').addEventListener('keydown', e => { if (e.key === 'Enter') login($('#pin').value.trim()); });
+$('#logout').addEventListener('click', () => { D.pw = null; store.sset('3a_pw', null); $('#pin').value = ''; $('#dash').classList.add('hidden'); $('#lock').classList.remove('hidden'); });
+$('#reload').addEventListener('click', async () => { const b = $('#reload'); b.disabled = true; try { load(await api.data(D.pw)); renderDash(); toast(`${ico('check')}อัปเดตข้อมูลแล้ว (${D.obs.length} รายการ)`); } catch (e) { toast(`${ico('alert')}${esc(e.message)}`); } b.disabled = false; });
+
+const num = v => (v === '' || v == null || v === 'NA') ? null : Number(v);
+function load(r) {
+  D.obs = (r.obs || []).map(o => ({ ...o, date: String(o.date || '').slice(0, 10), ask_ok: num(o.ask_ok), answer_ok: num(o.answer_ok), accurate_ok: num(o.accurate_ok), compliant_3A: Number(o.compliant_3A) }));
+  if (r.sheetUrl) { $('#openSheet').href = r.sheetUrl; $('#openSheet').classList.remove('hidden'); }
+}
+const opt = (v, l, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(l)}</option>`;
+function initFilters() {
+  if (!$('#fFrom').value) {
+    const dates = D.obs.map(o => o.date).filter(Boolean).sort();
+    $('#fFrom').value = dates[0] || ymd(new Date(Date.now() - 90 * 864e5)); $('#fTo').value = ymd(new Date());
+  }
+  $('#fDept').innerHTML = opt('', 'ทุกงาน (ภาพรวมฝ่าย)') + DEPTS.map(d => opt(d.code, `${d.code} · ${d.name}`, D.dept === d.code)).join('');
+  fillUnit();
+  $('#fAct').innerHTML = opt('', 'ทุกกิจกรรม') + ACT.map(a => opt(a.v, a.short || a.v)).join('');
+  $('#fPos').innerHTML = opt('', 'ทุกตำแหน่ง') + POS.map(a => opt(a.v, a.v)).join('');
+  $('#fShift').innerHTML = opt('', 'ทุกเวร') + SHIFTS.map(a => opt(a, 'เวร' + a)).join('');
+}
+function fillUnit() { const d = DEPT[D.dept]; $('#fUnit').disabled = !d; $('#fUnit').innerHTML = opt('', d ? 'ทุกหน่วยงานใน ' + d.code : '—') + (d ? d.units.map(u => opt(u[0], `${u[1]} (${u[0]})`, D.unit === u[0])).join('') : ''); }
+$('#fDept').addEventListener('change', e => drill(e.target.value, ''));
+$('#fUnit').addEventListener('change', e => drill(D.dept, e.target.value));
+['#fFrom', '#fTo', '#fAct', '#fPos', '#fShift'].forEach(s => $(s).addEventListener('change', renderDash));
+function drill(dept, unit) { D.dept = dept || ''; D.unit = unit || ''; $('#fDept').value = D.dept; fillUnit(); renderDash(); }
+
+function baseRows() {
+  const f = $('#fFrom').value, t = $('#fTo').value, a = $('#fAct').value, p = $('#fPos').value, s = $('#fShift').value;
+  return D.obs.filter(o => (!f || o.date >= f) && (!t || o.date <= t) && (!a || o.activity === a) && (!p || o.position === p) && (!s || o.shift === s));
+}
+const scoped = rows => rows.filter(o => (!D.dept || o.dept_code === D.dept) && (!D.unit || o.unit_code === D.unit));
+function M(rows) {
+  const n = rows.length, c = rows.filter(r => r.compliant_3A === 1).length;
+  const rate = k => { const a = rows.filter(r => r[k] != null); return a.length ? a.filter(r => r[k] === 1).length / a.length : null; };
+  return { n, comp: n ? c / n : null, fail: n - c, ask: rate('ask_ok'), ans: rate('answer_ok'), acc: rate('accurate_ok') };
+}
+const pct = (v, d = 1) => v == null ? '–' : (100 * v).toFixed(d) + '%';
+function groupBy(rows, key) { const m = new Map(); rows.forEach(r => { const k = r[key] || '(ไม่ระบุ)'; if (!m.has(k)) m.set(k, []); m.get(k).push(r); }); return m; }
+function level() { return D.unit ? 'unit' : D.dept ? 'dept' : 'all'; }
+function entities(rows) {
+  const lv = level();
+  if (lv === 'all') return DEPTS.map(d => ({ key: d.code, label: d.code, full: d.name, rows: rows.filter(r => r.dept_code === d.code), drill: () => drill(d.code, '') }));
+  if (lv === 'dept') return DEPT[D.dept].units.map(u => ({ key: u[0], label: u[0], full: u[1], rows: rows.filter(r => r.unit_code === u[0]), drill: () => drill(D.dept, u[0]) }));
+  return ACT.map(a => ({ key: a.v, label: a.short || a.v, full: a.v, rows: rows.filter(r => r.activity === a.v) }));
+}
+function wilson(k, n) { if (!n) return [null, null]; const z = 1.96, p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)); return [Math.max(0, (c - m) / d), Math.min(1, (c + m) / d)]; }
+function lvBadge(p) {
+  if (p == null) return '<span class="lv na">ข้อมูลไม่พอ</span>';
+  return p >= RISK_HI ? `<span class="lv h">${ico('alert')}สูง</span>` : p >= RISK_MID ? `<span class="lv m">${ico('alert')}ปานกลาง</span>` : `<span class="lv l">${ico('check')}ต่ำ</span>`;
+}
+const riskColor = p => p >= RISK_HI ? 'var(--bad)' : p >= RISK_MID ? 'var(--warn)' : 'var(--ok)';
+
+/* ---------- chart helpers ---------- */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function chart(id, cfg) {
+  if (D.charts[id]) D.charts[id].destroy();
+  if (typeof Chart === 'undefined') return;
+  Chart.defaults.font.family = css('--font'); Chart.defaults.font.size = 12.5; Chart.defaults.color = css('--ink-2'); Chart.defaults.borderColor = css('--line');
+  const o = cfg.options || {}, pl = o.plugins || {};
+  cfg.options = Object.assign({ responsive: true, maintainAspectRatio: false, animation: { duration: 250 } }, o, {
+    plugins: Object.assign({}, pl, { legend: Object.assign({ display: false }, pl.legend || {}),
+      tooltip: Object.assign({ backgroundColor: css('--ink'), titleColor: css('--bg'), bodyColor: css('--bg'), padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4 }, pl.tooltip || {}) }) });
+  D.charts[id] = new Chart(document.getElementById(id), cfg);
+}
+const barDs = (data, color, extra = {}) => Object.assign({ data, backgroundColor: color, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 26, categoryPercentage: .78, barPercentage: .9 }, extra);
+const pctAxis = (max = 100) => ({ min: 0, max, ticks: { callback: v => v + '%' }, grid: { color: css('--line') } });
+const noGrid = { grid: { display: false } };
+
+const CHART_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+let chartP = null;
+function loadChart() {
+  if (typeof Chart !== 'undefined') return Promise.resolve();
+  return chartP || (chartP = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = CHART_SRC; sc.onload = res; sc.onerror = () => { chartP = null; rej(new Error('โหลดกราฟไม่สำเร็จ')); }; document.head.appendChild(sc); }));
+}
+function renderDash() {
+  if (!D.pw) return;
+  if (typeof Chart === 'undefined') { loadChart().then(renderDash).catch(e => toast(`${ico('alert')}${esc(e.message)}`)); }
+  const base = baseRows(), rows = scoped(base), m = M(rows), lv = level();
+  // crumbs
+  let cr = lv === 'all' ? `<b>${ico('hosp')} ภาพรวมทุกงาน ฝ่ายการพยาบาล</b>` : `<button data-l="all">ทุกงาน</button>`;
+  if (D.dept) cr += `<span class="sep">›</span>` + (lv === 'dept' ? `<b>${D.dept} · ${esc(DEPT[D.dept].name)}</b>` : `<button data-l="dept">${D.dept}</button>`);
+  if (D.unit) cr += `<span class="sep">›</span><b>${esc(UNIT[D.unit].name)} (${D.unit})</b>`;
+  $('#crumbs').innerHTML = cr;
+  $('#crumbs').querySelectorAll('button').forEach(b => b.onclick = () => b.dataset.l === 'all' ? drill('', '') : drill(D.dept, ''));
+  // KPIs
+  const units = new Set(rows.map(r => r.unit_code)).size;
+  const kp = (icon, l, v, s, dot) => `<div class="kpi"><div class="l">${dot ? `<i class="dot" style="background:${dot}"></i>` : ico(icon)}${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const [lo, hi] = wilson(m.fail, m.n);
+  $('#kpis').innerHTML =
+    kp('clip', 'จำนวนการสังเกต', m.n.toLocaleString(), `${units} หน่วยงาน`) +
+    kp('target', 'ปฏิบัติครบ 3A', pct(m.comp), `ไม่ครบ ${m.fail} ราย`) +
+    kp('', 'Ask', pct(m.ask), 'ถามคำถามปลายเปิด', 'var(--ask)') +
+    kp('', 'Answer', pct(m.ans), 'รับฟังคำตอบ', 'var(--ans)') +
+    kp('', 'Accurate', pct(m.acc), 'ตรวจสอบความถูกต้อง', 'var(--acc)') +
+    `<div class="kpi"><div class="l">${ico('alert')}โอกาสไม่ปฏิบัติ</div><div class="v" style="color:${m.n ? riskColor(1 - m.comp) : 'inherit'}">${m.n ? pct(1 - m.comp) : '–'}</div><div class="s">95% CI ${lo == null ? '–' : pct(lo, 0) + '–' + pct(hi, 0)} · ${m.n ? lvBadge(1 - m.comp) : ''}</div></div>`;
+
+  const ents = entities(rows).map(e => ({ ...e, m: M(e.rows) }));
+  const shown = lv === 'all' ? ents : ents.filter(e => e.m.n > 0 || lv === 'unit');
+  // c1: compliance per entity
+  const lvName = lv === 'all' ? 'งานการพยาบาล' : lv === 'dept' ? 'หน่วยงาน' : 'กิจกรรม';
+  $('#c1t').textContent = `อัตราปฏิบัติครบ 3A แยกตาม${lvName}`;
+  $('#c1d').textContent = lv === 'unit' ? 'หน่วยงานนี้ แยกตามกิจกรรม' : 'คลิกแท่งเพื่อเจาะลึก (drill down) ลงระดับ' + (lv === 'all' ? 'หน่วยงาน' : 'กิจกรรม');
+  $('#c1w').style.height = Math.max(260, shown.length * 30 + 40) + 'px';
+  $('#c2w').style.height = Math.max(260, shown.length * 30 + 40) + 'px';
+  chart('c1', { type: 'bar', data: { labels: shown.map(e => e.label), datasets: [barDs(shown.map(e => e.m.comp == null ? null : +(100 * e.m.comp).toFixed(1)), css('--brand'))] },
+    options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid },
+      onClick: (ev, el) => { if (el.length && shown[el[0].index].drill) shown[el[0].index].drill(); },
+      onHover: (ev, el) => { ev.native.target.style.cursor = el.length && lv !== 'unit' ? 'pointer' : 'default'; },
+      plugins: { tooltip: { callbacks: { title: i => shown[i[0].dataIndex].full, label: i => { const e = shown[i.dataIndex]; return ` ครบ 3A ${pct(e.m.comp)} (n=${e.m.n})`; } } } } } });
+  // c2: failure points
+  const fr = (e, k) => e.m[k] == null ? null : +(100 * (1 - e.m[k])).toFixed(1);
+  chart('c2', { type: 'bar', data: { labels: shown.map(e => e.label), datasets: [
+    barDs(shown.map(e => fr(e, 'ask')), css('--ask'), { label: 'Ask' }), barDs(shown.map(e => fr(e, 'ans')), css('--ans'), { label: 'Answer' }), barDs(shown.map(e => fr(e, 'acc')), css('--acc'), { label: 'Accurate' })] },
+    options: { indexAxis: 'y', scales: { x: { ...pctAxis(null), max: undefined, suggestedMax: 30 }, y: noGrid },
+      plugins: { legend: { display: true, position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, useBorderRadius: true, borderRadius: 3 } },
+        tooltip: { callbacks: { title: i => shown[i[0].dataIndex].full, label: i => ` ${i.dataset.label} ไม่ปฏิบัติ ${i.raw == null ? '–' : i.raw + '%'}` } } } } });
+  // c3: trend
+  const span = rows.length ? (new Date(rows.reduce((a, r) => r.date > a ? r.date : a, '')) - new Date(rows.reduce((a, r) => r.date < a ? r.date : a, '9999'))) / 864e5 : 0;
+  const weekly = span <= 120;
+  const keyOf = d => { if (!weekly) return d.slice(0, 7); const x = new Date(d + 'T00:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return ymd(x); };
+  const tg = [...groupBy(rows.map(r => ({ ...r, _k: keyOf(r.date) })), '_k').entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+  $('#c3d').textContent = `% ปฏิบัติครบ 3A ราย${weekly ? 'สัปดาห์' : 'เดือน'}`;
+  chart('c3', { type: 'line', data: { labels: tg.map(g => weekly ? new Date(g[0]).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) : new Date(g[0] + '-01').toLocaleDateString('th-TH', { month: 'short', year: '2-digit' })),
+    datasets: [{ data: tg.map(g => +(100 * M(g[1]).comp).toFixed(1)), borderColor: css('--brand'), backgroundColor: css('--brand'), borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: .25 }] },
+    options: { interaction: { mode: 'index', intersect: false }, scales: { y: pctAxis(), x: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${tg[i.dataIndex][1].length})` } } } } });
+  // c4: activity
+  const actM = ACT.map(a => ({ l: a.short || a.v, m: M(rows.filter(r => r.activity === a.v)) }));
+  chart('c4', { type: 'bar', data: { labels: actM.map(a => a.l), datasets: [barDs(actM.map(a => a.m.comp == null ? null : +(100 * a.m.comp).toFixed(1)), css('--brand'))] },
+    options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${actM[i.dataIndex].m.n})` } } } } });
+  // c5: position & experience
+  const pe = [...POS.map(p => ({ l: p.v === POS[2].v ? 'บริหาร/ธุรการ' : p.v, m: M(rows.filter(r => r.position === p.v)) })), ...EXP.map(x => ({ l: 'อายุงาน ' + x.v, m: M(rows.filter(r => r.experience === x.v)) }))];
+  chart('c5', { type: 'bar', data: { labels: pe.map(a => a.l), datasets: [barDs(pe.map(a => a.m.comp == null ? null : +(100 * a.m.comp).toFixed(1)), pe.map((a, i) => i < 3 ? css('--brand') : css('--ask')))] },
+    options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${pe[i.dataIndex].m.n})` } } } } });
+  // c8: consciousness
+  const cm = CON.map(c => ({ l: c.v, m: M(rows.filter(r => r.consciousness === c.v)) }));
+  chart('c8', { type: 'bar', data: { labels: cm.map(c => c.l.replace('สื่อสาร', 'สื่อสาร').split(' ')), datasets: [barDs(cm.map(c => c.m.comp == null ? null : +(100 * c.m.comp).toFixed(1)), css('--brand'), { maxBarThickness: 48 })] },
+    options: { scales: { y: pctAxis(), x: noGrid }, plugins: { tooltip: { callbacks: { title: i => cm[i[0].dataIndex].l, label: i => ` ครบ 3A ${i.raw}% (n=${cm[i.dataIndex].m.n})` } } } } });
+  // c6: evidence
+  const cnt = (field, v) => rows.filter(r => String(r[field] || '').split(', ').includes(v)).length;
+  const evL = ['ชื่อ-นามสกุล', 'วันเดือนปีเกิด', 'ชื่อ-นามสกุลมารดา', 'ป้ายข้อมือ/ข้อเท้า', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
+  chart('c6', { type: 'bar', data: { labels: evL.map(v => v.replace('เลขประจำตัวโรงพยาบาล', 'HN').replace('บัตรประจำตัวประชาชน', 'บัตรประชาชน')), datasets: [
+    barDs(evL.map(v => ASK_IDS.includes(v) ? cnt('ask_5_2_evidence', v) : null), css('--ask'), { label: '5.2 Ask' }),
+    barDs(evL.map(v => ACC_IDS.includes(v) ? cnt('accurate_7_2_evidence', v) : null), css('--acc'), { label: '7.2 Accurate' })] },
+    options: { indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: css('--line') } }, y: noGrid },
+      plugins: { legend: { display: true, position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, useBorderRadius: true, borderRadius: 3 } } } } });
+
+  renderRisk(rows);
+  renderRaw(rows);
+}
+
+/* ---------- predictive model: logistic regression (L2) ---------- */
+const FACTORS = [
+  ['position', 'ตำแหน่ง', POS.map(p => p.v)], ['experience', 'อายุงาน', EXP.map(p => p.v)], ['activity', 'กิจกรรม', ACT.map(p => p.v)],
+  ['consciousness', 'ผู้ป่วย', CON.map(p => p.v)], ['shift', 'เวร', SHIFTS]];
+function design(r, extraDept, depts) {
+  const x = [];
+  FACTORS.forEach(([k, , lv]) => lv.slice(1).forEach(v => x.push(r[k] === v ? 1 : 0)));
+  if (extraDept) depts.slice(1).forEach(v => x.push(r.dept_code === v ? 1 : 0));
+  return x;
+}
+function fitLogit(rows) {
+  const depts = DEPTS.map(d => d.code), useDept = !D.dept;
+  const X = rows.map(r => design(r, useDept, depts)), y = rows.map(r => r.compliant_3A === 1 ? 0 : 1);
+  const n = X.length, p = X[0] ? X[0].length : 0, lam = 1.0;
+  let w = new Array(p).fill(0), ybar = y.reduce((a, b) => a + b, 0) / n, b = Math.log((ybar + .01) / (1 - ybar + .01));
+  const sig = z => 1 / (1 + Math.exp(-z));
+  for (let it = 0; it < 600; it++) {
+    const g = new Array(p).fill(0); let gb = 0;
+    for (let i = 0; i < n; i++) { let z = b; const xi = X[i]; for (let j = 0; j < p; j++) if (xi[j]) z += w[j]; const e = sig(z) - y[i]; gb += e; for (let j = 0; j < p; j++) if (xi[j]) g[j] += e; }
+    const lr = 2.0;
+    b -= lr * gb / n; for (let j = 0; j < p; j++) w[j] -= lr * (g[j] + lam * w[j]) / n;
+  }
+  const predict = r => { const x = design(r, useDept, depts); let z = b; for (let j = 0; j < p; j++) z += w[j] * x[j]; return sig(z); };
+  return { predict, n, useDept, depts };
+}
+function renderRisk(rows) {
+  const MIN = 30;
+  const model = rows.length >= MIN ? fitLogit(rows) : null;
+  $('#modelNote').textContent = model ? `โมเดลเรียนรู้จากข้อมูล ${rows.length} รายการในขอบเขตที่เลือก · ใช้ประกอบการตัดสินใจ ไม่ใช่การวินิจฉัย` : `ต้องมีข้อมูลอย่างน้อย ${MIN} รายการในขอบเขตที่เลือกจึงจะทำนายได้ (ตอนนี้ ${rows.length})`;
+  // marginal predicted probability per factor level
+  const labels = [], vals = [], cols = [], ns = [];
+  const overall = rows.length ? rows.filter(r => r.compliant_3A !== 1).length / rows.length : 0;
+  if (model) FACTORS.forEach(([k, name, lvls], fi) => lvls.forEach(v => {
+    const sub = rows.filter(r => r[k] === v); if (!sub.length) return;
+    const avg = rows.reduce((a, r) => a + model.predict({ ...r, [k]: v }), 0) / rows.length;
+    labels.push([name + ': ' + (v === POS[2].v ? 'บริหาร/ธุรการ' : v.replace('การส่งสิ่งส่งตรวจทางห้องปฏิบัติการ', 'ส่งสิ่งส่งตรวจ'))]); vals.push(+(100 * avg).toFixed(1)); ns.push(sub.length);
+    cols.push(avg >= RISK_HI ? css('--bad') : avg >= RISK_MID ? css('--ans') : css('--acc'));
+  }));
+  $('#c9d').innerHTML = model ? `ปรับอิทธิพลปัจจัยอื่นแล้ว (Logistic regression) · ค่าเฉลี่ยรวม ${pct(overall)} · สีแดง ≥20% ส้ม 10–19% เขียว &lt;10%` : 'ข้อมูลยังไม่พอสำหรับโมเดล';
+  chart('c9', { type: 'bar', data: { labels, datasets: [barDs(vals, cols, { maxBarThickness: 18 })] },
+    options: { indexAxis: 'y', scales: { x: { ...pctAxis(null), max: undefined, beginAtZero: true, suggestedMax: 30 }, y: { grid: { display: false }, ticks: { font: { size: 11.5 } } } },
+      plugins: { tooltip: { callbacks: { label: i => ` โอกาสไม่ปฏิบัติ ${i.raw}% (n=${ns[i.dataIndex]})` } } } } });
+  // calculator
+  if (!$('#calc').dataset.init) {
+    $('#calc').innerHTML = FACTORS.map(([k, name, lvls]) => `<label class="f">${name}<select data-k="${k}">${lvls.map(v => opt(v, v === POS[2].v ? 'บริหาร/ธุรการ' : v)).join('')}</select></label>`).join('') +
+      `<label class="f">งานการพยาบาล<select data-k="dept_code">${DEPTS.map(d => opt(d.code, d.code)).join('')}</select></label>`;
+    $('#calc').dataset.init = 1; $('#calc').addEventListener('change', () => calc());
+  }
+  const dsel = $('#calc select[data-k="dept_code"]'); dsel.disabled = !!D.dept; if (D.dept) dsel.value = D.dept;
+  D.model = model; calc();
+}
+function calc() {
+  const r = {}; $('#calc').querySelectorAll('select').forEach(s => r[s.dataset.k] = s.value);
+  if (!D.model) { $('#gV').textContent = '–'; $('#gL').innerHTML = lvBadge(null); $('#gM').style.width = 0; $('#gN').textContent = ''; return; }
+  const p = D.model.predict(r);
+  $('#gV').textContent = pct(p); $('#gV').style.color = riskColor(p); $('#gL').innerHTML = lvBadge(p);
+  $('#gM').style.width = Math.min(100, p * 100 / .5) + '%'; $('#gM').style.background = riskColor(p);
+  $('#gN').textContent = p >= RISK_HI ? 'ควรเฝ้าระวังเข้มข้น: สังเกตซ้ำ/นิเทศหน้างาน' : p >= RISK_MID ? 'ควรติดตามและทบทวนแนวปฏิบัติ' : 'ความเสี่ยงต่ำ คงมาตรฐานไว้';
+}
+function renderRaw(rows) {
+  const list = [...rows].sort((a, b) => String(a.timestamp) < String(b.timestamp) ? 1 : -1).slice(0, 100);
+  $('#rawD').textContent = `แสดง ${list.length} จาก ${rows.length} รายการ (ตามตัวกรอง) · Export CSV เพื่อวิเคราะห์ต่อใน Excel/SPSS/R`;
+  const yn = v => v == null ? '<span style="color:var(--muted)">N/A</span>' : v === 1 ? `<span class="lv l">${ico('check')}</span>` : `<span class="lv h">${ico('x')}</span>`;
+  $('#rawT').innerHTML = '<thead><tr><th>วัน-เวลา</th><th>หน่วยงาน</th><th>ตำแหน่ง</th><th>กิจกรรม</th><th>Ask</th><th>Answer</th><th>Accurate</th><th>ผล</th><th>หมายเหตุ</th></tr></thead><tbody>' +
+    list.map(r => `<tr><td style="white-space:nowrap">${esc(r.date)} ${esc(r.time)}</td><td>${esc(r.unit_code)}</td><td>${esc(r.position)}</td><td>${esc(r.activity)}</td><td>${yn(r.ask_ok)}</td><td>${yn(r.answer_ok)}</td><td>${yn(r.accurate_ok)}</td><td>${r.compliant_3A === 1 ? '<b style="color:var(--ok)">ครบ</b>' : '<b style="color:var(--bad)">ไม่ครบ</b>'}</td><td>${esc(r.note)}</td></tr>`).join('') + '</tbody>';
+}
+
+/* ---------- export ---------- */
+function csv(rows, name) {
+  if (!rows.length) return toast(`${ico('alert')}ไม่มีข้อมูลให้ export`);
+  const cols = Object.keys(rows[0]).filter(k => !k.startsWith('_'));
+  const q = v => { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const body = '﻿' + [cols.join(','), ...rows.map(r => cols.map(c => q(r[c])).join(','))].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([body], { type: 'text/csv;charset=utf-8' }));
+  a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+$('#expObs').addEventListener('click', () => csv(scoped(baseRows()), `3A_observations_${ymd(new Date())}.csv`));
+
+/* ---------- demo data (เฉพาะโหมดทดลอง) ---------- */
+$('#genDemo').addEventListener('click', () => {
+  const pick = a => a[Math.floor(Math.random() * a.length)], all = store.get('demo3a_obs', []);
+  const deptRisk = Object.fromEntries(DEPTS.map(d => [d.code, .04 + Math.random() * .18]));
+  for (let i = 0; i < 600; i++) {
+    const d = pick(DEPTS), u = pick(d.units), t = new Date(Date.now() - Math.random() * 150 * 864e5), pos = pick([0, 0, 0, 1, 1, 2]), ex = pick([0, 1, 2, 2]), act = pick(ACT).v, con = pick([0, 0, 0, 1, 2]);
+    const risk = deptRisk[d.code] + (pos === 2 ? .15 : pos === 1 ? .06 : 0) + (ex === 0 ? .08 : 0) + (act === 'การส่งมอบเอกสารผู้ป่วย' ? .1 : 0) + (con === 1 ? .06 : 0);
+    const fail = () => Math.random() < risk * .3;
+    const ask = con === 2 ? 'N/A' : fail() ? NO : YES, ans = con === 2 ? 'N/A' : fail() ? NO : YES, acc = fail() ? NO : YES;
+    const rec = { id: uid(), position: POS[pos].v, experience: EXP[ex].v, dept_code: d.code, dept_name: d.name, unit_code: u[0], unit_name: u[1], activity: act, consciousness: CON[con].v,
+      ask_5_1: ask, ask_5_2: ask === YES ? ASK_IDS.slice(0, 4).filter(() => Math.random() < .6).concat('ชื่อ-นามสกุล').filter((v, i, a) => a.indexOf(v) === i) : [], answer_6: ans,
+      accurate_7_1: acc, accurate_7_2: acc === YES ? ['ป้ายข้อมือ/ข้อเท้า', ...(Math.random() < .5 ? ['เลขประจำตัวโรงพยาบาล'] : [])] : [], note: '' };
+    all.push(demoRow(rec, t));
+  }
+  store.set('demo3a_obs', all);
+  $('#fFrom').value = ''; api.data(D.pw).then(r => { load(r); initFilters(); renderDash(); });
+});
+$('#clrDemo').addEventListener('click', () => { store.set('demo3a_obs', []); api.data(D.pw).then(r => { load(r); renderDash(); }); });
+
+window.addEventListener('resize', () => { });
+const savedPw = store.sget('3a_pw'); if (savedPw) login(savedPw, true);
+if ('serviceWorker' in navigator && location.protocol === 'https:') { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { })); }
+</script>
+</body>
+</html>
