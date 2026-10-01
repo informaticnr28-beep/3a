@@ -244,6 +244,7 @@ table.t tr.click:hover td{background:var(--surface-2)}
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
   <symbol id="i-tube" viewBox="0 0 24 24"><path d="M14.5 2v17.5a2.5 2.5 0 0 1-5 0V2"/><path d="M8.5 2h7M14.5 14h-5"/></symbol>
   <symbol id="i-syr" viewBox="0 0 24 24"><path d="m18 2 4 4M17 7l3-3M19 9 8.7 19.3a2.4 2.4 0 0 1-3.4 0l-.6-.6a2.4 2.4 0 0 1 0-3.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.6v16l-8-1.6V5.6a1 1 0 0 1 .8-1L13 2.9z"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
   <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
   <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></symbol>
@@ -441,13 +442,18 @@ const ACT = [
   { v: 'การส่งสิ่งส่งตรวจทางห้องปฏิบัติการ', icon: 'tube', short: 'ส่งสิ่งส่งตรวจ' },
   { v: 'การผ่าตัด/ทำหัตถการ', icon: 'syr', short: 'ผ่าตัด/หัตถการ' },
   { v: 'การส่งมอบเอกสารผู้ป่วย', icon: 'file', short: 'ส่งมอบเอกสาร' }];
+// ตัวเลือกที่เอาออกจากฟอร์มแล้ว: ไม่แสดงในหน้าบันทึก แต่ถ้ามีข้อมูลเดิมใน Google Sheet จะยังแสดงใน Dashboard
+const ACT_LEGACY = [{ v: 'การเรียกผู้ป่วยเข้าห้องตรวจ', short: 'เรียกเข้าห้องตรวจ' }];
+function actList() { return ACT.concat(ACT_LEGACY.filter(a => (typeof D !== 'undefined' ? D.obs : []).some(o => o.activity === a.v))); }
 const CON = [
   { v: 'สื่อสารได้เอง', label: 'ผู้ป่วยสามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
   { v: 'สื่อสารไม่ได้ มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และมีญาติ/ผู้ดูแล', icon: 'users', sub: 'ถามญาติ · ประเมินครบ 3A' },
   { v: 'สื่อสารไม่ได้ ไม่มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และไม่มีญาติ/ผู้ดูแล', icon: 'userx', sub: 'ประเมินเฉพาะ Accurate (7.1, 7.2)' }];
 const NOCOMM = CON[2].v;
 const ASK_IDS = ['ชื่อ-นามสกุล', 'วันเดือนปีเกิด', 'ชื่อ-นามสกุลมารดา', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
-const ACC_IDS = ['ป้ายข้อมือ/ข้อเท้า', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
+const ACC_IDS = ['ป้ายข้อมือ/ข้อเท้า', 'บัตรประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'Medical record', 'อื่นๆ'];
+// ข้อมูลเดิมที่บันทึกก่อนเปลี่ยนชื่อตัวเลือก 7.2 ให้นับรวมกับชื่อใหม่
+const ACC_ALIAS = { 'บัตรประจำตัวโรงพยาบาล': ['บัตรประจำตัวโรงพยาบาล', 'บัตรโรงพยาบาล', 'เลขประจำตัวโรงพยาบาล'] };
 const SHIFTS = ['เช้า', 'บ่าย', 'ดึก'];
 const YES = 'ปฏิบัติ', NO = 'ไม่ปฏิบัติ';
 const RISK_HI = 0.20, RISK_MID = 0.10;
@@ -685,7 +691,7 @@ function initFilters() {
   }
   $('#fDept').innerHTML = opt('', 'ทุกงาน (ภาพรวมฝ่าย)') + DEPTS.map(d => opt(d.code, `${d.code} · ${d.name}`, D.dept === d.code)).join('');
   fillUnit();
-  $('#fAct').innerHTML = opt('', 'ทุกกิจกรรม') + ACT.map(a => opt(a.v, a.short || a.v)).join('');
+  $('#fAct').innerHTML = opt('', 'ทุกกิจกรรม') + actList().map(a => opt(a.v, a.short || a.v)).join('');
   $('#fPos').innerHTML = opt('', 'ทุกตำแหน่ง') + POS.map(a => opt(a.v, a.v)).join('');
   $('#fShift').innerHTML = opt('', 'ทุกเวร') + SHIFTS.map(a => opt(a, 'เวร' + a)).join('');
 }
@@ -712,7 +718,7 @@ function entities(rows) {
   const lv = level();
   if (lv === 'all') return DEPTS.map(d => ({ key: d.code, label: d.code, full: d.name, rows: rows.filter(r => r.dept_code === d.code), drill: () => drill(d.code, '') }));
   if (lv === 'dept') return DEPT[D.dept].units.map(u => ({ key: u[0], label: u[0], full: u[1], rows: rows.filter(r => r.unit_code === u[0]), drill: () => drill(D.dept, u[0]) }));
-  return ACT.map(a => ({ key: a.v, label: a.short || a.v, full: a.v, rows: rows.filter(r => r.activity === a.v) }));
+  return actList().map(a => ({ key: a.v, label: a.short || a.v, full: a.v, rows: rows.filter(r => r.activity === a.v) }));
 }
 function wilson(k, n) { if (!n) return [null, null]; const z = 1.96, p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)); return [Math.max(0, (c - m) / d), Math.min(1, (c + m) / d)]; }
 function lvBadge(p) {
@@ -795,7 +801,7 @@ function renderDash() {
     datasets: [{ data: tg.map(g => +(100 * M(g[1]).comp).toFixed(1)), borderColor: css('--brand'), backgroundColor: css('--brand'), borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: .25 }] },
     options: { interaction: { mode: 'index', intersect: false }, scales: { y: pctAxis(), x: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${tg[i.dataIndex][1].length})` } } } } });
   // c4: activity
-  const actM = ACT.map(a => ({ l: a.short || a.v, m: M(rows.filter(r => r.activity === a.v)) }));
+  const actM = actList().map(a => ({ l: a.short || a.v, m: M(rows.filter(r => r.activity === a.v)) }));
   chart('c4', { type: 'bar', data: { labels: actM.map(a => a.l), datasets: [barDs(actM.map(a => a.m.comp == null ? null : +(100 * a.m.comp).toFixed(1)), css('--brand'))] },
     options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${actM[i.dataIndex].m.n})` } } } } });
   // c5: position & experience
@@ -807,11 +813,13 @@ function renderDash() {
   chart('c8', { type: 'bar', data: { labels: cm.map(c => c.l.replace('สื่อสาร', 'สื่อสาร').split(' ')), datasets: [barDs(cm.map(c => c.m.comp == null ? null : +(100 * c.m.comp).toFixed(1)), css('--brand'), { maxBarThickness: 48 })] },
     options: { scales: { y: pctAxis(), x: noGrid }, plugins: { tooltip: { callbacks: { title: i => cm[i[0].dataIndex].l, label: i => ` ครบ 3A ${i.raw}% (n=${cm[i.dataIndex].m.n})` } } } } });
   // c6: evidence
-  const cnt = (field, v) => rows.filter(r => String(r[field] || '').split(', ').includes(v)).length;
-  const evL = ['ชื่อ-นามสกุล', 'วันเดือนปีเกิด', 'ชื่อ-นามสกุลมารดา', 'ป้ายข้อมือ/ข้อเท้า', 'เลขประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'อื่นๆ'];
-  chart('c6', { type: 'bar', data: { labels: evL.map(v => v.replace('เลขประจำตัวโรงพยาบาล', 'HN').replace('บัตรประจำตัวประชาชน', 'บัตรประชาชน')), datasets: [
+  const cnt = (field, v) => { const keys = field === 'accurate_7_2_evidence' && ACC_ALIAS[v] ? ACC_ALIAS[v] : [v]; return rows.filter(r => String(r[field] || '').split(', ').some(x => keys.includes(x))).length; };
+  // 'Rama app' ไม่มีในฟอร์มแล้ว แต่ถ้ามีข้อมูลเดิมจะยังแสดงในกราฟ
+  const evL = ['ชื่อ-นามสกุล', 'วันเดือนปีเกิด', 'ชื่อ-นามสกุลมารดา', 'เลขประจำตัวโรงพยาบาล', 'ป้ายข้อมือ/ข้อเท้า', 'บัตรประจำตัวโรงพยาบาล', 'บัตรประจำตัวประชาชน', 'ใบขับขี่', 'Medical record', 'อื่นๆ']
+    .concat(rows.some(r => String(r.accurate_7_2_evidence || '').split(', ').includes('Rama app')) ? ['Rama app'] : []);
+  chart('c6', { type: 'bar', data: { labels: evL.map(v => v.replace('เลขประจำตัวโรงพยาบาล', 'HN (5.2)').replace('บัตรประจำตัวโรงพยาบาล', 'บัตร รพ.').replace('บัตรประจำตัวประชาชน', 'บัตรประชาชน')), datasets: [
     barDs(evL.map(v => ASK_IDS.includes(v) ? cnt('ask_5_2_evidence', v) : null), css('--ask'), { label: '5.2 Ask' }),
-    barDs(evL.map(v => ACC_IDS.includes(v) ? cnt('accurate_7_2_evidence', v) : null), css('--acc'), { label: '7.2 Accurate' })] },
+    barDs(evL.map(v => ACC_IDS.includes(v) || v === 'Rama app' ? cnt('accurate_7_2_evidence', v) : null), css('--acc'), { label: '7.2 Accurate' })] },
     options: { indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: css('--line') } }, y: noGrid },
       plugins: { legend: { display: true, position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, useBorderRadius: true, borderRadius: 3 } } } } });
 
@@ -845,6 +853,7 @@ function fitLogit(rows) {
   return { predict, n, useDept, depts };
 }
 function renderRisk(rows) {
+  FACTORS[2][2] = actList().map(a => a.v); // รวมกิจกรรมเดิมที่มีในข้อมูล เพื่อไม่ให้นับปนกับกลุ่มอ้างอิง
   const MIN = 30;
   const model = rows.length >= MIN ? fitLogit(rows) : null;
   $('#modelNote').textContent = model ? `โมเดลเรียนรู้จากข้อมูล ${rows.length} รายการในขอบเขตที่เลือก · ใช้ประกอบการตัดสินใจ ไม่ใช่การวินิจฉัย` : `ต้องมีข้อมูลอย่างน้อย ${MIN} รายการในขอบเขตที่เลือกจึงจะทำนายได้ (ตอนนี้ ${rows.length})`;
@@ -863,7 +872,7 @@ function renderRisk(rows) {
       plugins: { tooltip: { callbacks: { label: i => ` โอกาสไม่ปฏิบัติ ${i.raw}% (n=${ns[i.dataIndex]})` } } } } });
   // calculator
   if (!$('#calc').dataset.init) {
-    $('#calc').innerHTML = FACTORS.map(([k, name, lvls]) => `<label class="f">${name}<select data-k="${k}">${lvls.map(v => opt(v, v === POS[2].v ? 'บริหาร/ธุรการ' : v)).join('')}</select></label>`).join('') +
+    $('#calc').innerHTML = FACTORS.map(([k, name, lvls]) => `<label class="f">${name}<select data-k="${k}">${(k === 'activity' ? ACT.map(a => a.v) : lvls).map(v => opt(v, v === POS[2].v ? 'บริหาร/ธุรการ' : v)).join('')}</select></label>`).join('') +
       `<label class="f">งานการพยาบาล<select data-k="dept_code">${DEPTS.map(d => opt(d.code, d.code)).join('')}</select></label>`;
     $('#calc').dataset.init = 1; $('#calc').addEventListener('change', () => calc());
   }
@@ -908,7 +917,7 @@ $('#genDemo').addEventListener('click', () => {
     const ask = con === 2 ? 'N/A' : fail() ? NO : YES, ans = con === 2 ? 'N/A' : fail() ? NO : YES, acc = fail() ? NO : YES;
     const rec = { id: uid(), position: POS[pos].v, experience: EXP[ex].v, dept_code: d.code, dept_name: d.name, unit_code: u[0], unit_name: u[1], activity: act, consciousness: CON[con].v,
       ask_5_1: ask, ask_5_2: ask === YES ? ASK_IDS.slice(0, 4).filter(() => Math.random() < .6).concat('ชื่อ-นามสกุล').filter((v, i, a) => a.indexOf(v) === i) : [], answer_6: ans,
-      accurate_7_1: acc, accurate_7_2: acc === YES ? ['ป้ายข้อมือ/ข้อเท้า', ...(Math.random() < .5 ? ['เลขประจำตัวโรงพยาบาล'] : [])] : [], note: '' };
+      accurate_7_1: acc, accurate_7_2: acc === YES ? ['ป้ายข้อมือ/ข้อเท้า', ...(Math.random() < .5 ? ['บัตรประจำตัวโรงพยาบาล'] : []), ...(Math.random() < .2 ? ['Medical record'] : [])] : [], note: '' };
     all.push(demoRow(rec, t));
   }
   store.set('demo3a_obs', all);
