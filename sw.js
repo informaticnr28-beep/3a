@@ -1,5 +1,5 @@
 // Service worker: เปิดแอปได้ทันทีจากแคช และอัปเดตเบื้องหลังเมื่อมีเวอร์ชันใหม่
-const VERSION = '3a-v2';
+const VERSION = '3a-v5';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
