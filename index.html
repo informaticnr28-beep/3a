@@ -446,7 +446,7 @@ const ACT = [
 const ACT_LEGACY = [{ v: 'การเรียกผู้ป่วยเข้าห้องตรวจ', short: 'เรียกเข้าห้องตรวจ' }];
 function actList() { return ACT.concat(ACT_LEGACY.filter(a => (typeof D !== 'undefined' ? D.obs : []).some(o => o.activity === a.v))); }
 const CON = [
-  { v: 'สื่อสารได้เอง', label: 'ผู้ป่วยสามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
+  { v: 'สื่อสารได้เอง', label: 'ผู้ป่วย/ญาติสามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
   { v: 'สื่อสารไม่ได้ มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และมีญาติ/ผู้ดูแล', icon: 'users', sub: 'ถามญาติ · ประเมินครบ 3A' },
   { v: 'สื่อสารไม่ได้ ไม่มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และไม่มีญาติ/ผู้ดูแล', icon: 'userx', sub: 'ประเมินเฉพาะ Accurate (7.1, 7.2)' }];
 const NOCOMM = CON[2].v;
