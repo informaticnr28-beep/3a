@@ -244,6 +244,10 @@ table.t tr.click:hover td{background:var(--surface-2)}
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
   <symbol id="i-tube" viewBox="0 0 24 24"><path d="M14.5 2v17.5a2.5 2.5 0 0 1-5 0V2"/><path d="M8.5 2h7M14.5 14h-5"/></symbol>
   <symbol id="i-syr" viewBox="0 0 24 24"><path d="m18 2 4 4M17 7l3-3M19 9 8.7 19.3a2.4 2.4 0 0 1-3.4 0l-.6-.6a2.4 2.4 0 0 1 0-3.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6"/></symbol>
+  <symbol id="i-broom" viewBox="0 0 24 24"><path d="m13 11 8-8M9.5 9.5l5 5"/><path d="M9.5 9.5 4 15c-1 1-1.5 3-1 6 3 .5 5 0 6-1l5.5-5.5"/><path d="M6 17.5 8 20"/></symbol>
+  <symbol id="i-amb" viewBox="0 0 24 24"><path d="M3 17V7a1 1 0 0 1 1-1h10v11"/><path d="M14 9h4l3 4v4h-2"/><path d="M9 17h6"/><circle cx="6.5" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/><path d="M8.5 9v4M6.5 11h4"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M2 9v8M2 13h20v4M22 13v-1a3 3 0 0 0-3-3h-8v4"/><circle cx="6.5" cy="10.5" r="1.8"/><circle cx="6" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><path d="M3 12h18M9 17h6"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
   <symbol id="i-door" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.6v16l-8-1.6V5.6a1 1 0 0 1 .8-1L13 2.9z"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
   <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
@@ -296,7 +300,7 @@ table.t tr.click:hover td{background:var(--surface-2)}
     <section class="card p1" id="sec-staff">
       <div class="sec-h"><span class="n">1</span><h2>ผู้ถูกสังเกต<span class="star">*</span></h2><span class="req" id="st-staff"></span></div>
       <div class="sub-l"><svg class="i" style="width:16px;height:16px"><use href="#i-user"/></svg>ตำแหน่ง<span class="star">*</span></div>
-      <div class="tiles t3" id="g-position"></div>
+      <div class="tiles" id="g-position"></div>
       <div class="sub-l"><svg class="i" style="width:16px;height:16px"><use href="#i-award"/></svg>อายุงาน<span class="star">*</span></div>
       <div class="chips" id="g-experience"></div>
     </section>
@@ -406,7 +410,7 @@ table.t tr.click:hover td{background:var(--surface-2)}
       <div class="panel"><h3><svg class="i"><use href="#i-pill"/></svg>แยกตามกิจกรรม</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c4"></canvas></div></div>
     </div>
     <div class="dgrid d3">
-      <div class="panel"><h3><svg class="i"><use href="#i-user"/></svg>ตำแหน่ง &amp; อายุงาน</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c5"></canvas></div></div>
+      <div class="panel"><h3><svg class="i"><use href="#i-user"/></svg>ตำแหน่ง &amp; อายุงาน</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw" style="height:340px"><canvas id="c5"></canvas></div></div>
       <div class="panel"><h3><svg class="i"><use href="#i-users"/></svg>ระดับความรู้สึกตัวผู้ป่วย</h3><div class="d">% ปฏิบัติครบ 3A</div><div class="cw s"><canvas id="c8"></canvas></div></div>
       <div class="panel"><h3><svg class="i"><use href="#i-shield"/></svg>หลักฐานที่ใช้ระบุตัว</h3><div class="d">จำนวนครั้งที่ใช้ (5.2 ถาม / 7.2 ตรวจสอบ)</div><div class="cw s"><canvas id="c6"></canvas></div></div>
     </div>
@@ -435,7 +439,13 @@ const UNIT = {}; DEPTS.forEach(d => d.units.forEach(u => UNIT[u[0]] = { code: u[
 const POS = [
   { v: 'พยาบาล', icon: 'nurse' },
   { v: 'ผู้ช่วยพยาบาล', icon: 'heart' },
-  { v: 'ผู้ปฏิบัติงานบริหาร/ธุรการ', icon: 'clip', sub: 'หอผู้ป่วย-หน่วยตรวจ' }];
+  { v: 'ผู้ปฏิบัติงานบริหาร/ธุรการ', icon: 'clip', sub: 'หอผู้ป่วย-หน่วยตรวจ', short: 'บริหาร/ธุรการ' },
+  { v: 'พนักงานบริการ', icon: 'broom' },
+  { v: 'พนักงานขับรถพยาบาลฉุกเฉิน', label: 'พ.ขับรถพยาบาลฉุกเฉิน', icon: 'amb', short: 'พ.ขับรถพยาบาลฉุกเฉิน' },
+  { v: 'พนักงานเปล', icon: 'bed' },
+  { v: 'พนักงานขับรถยนต์', icon: 'car', short: 'ขับรถยนต์' }];
+// ชื่อย่อสำหรับกราฟ (ค่าที่บันทึกลงชีตยังเป็นชื่อเต็มใน v)
+const posShort = v => { const p = POS.find(x => x.v === v); return (p && p.short) || v; };
 const EXP = [{ v: '<2 ปี', label: 'น้อยกว่า 2 ปี' }, { v: '2-5 ปี', label: '2 – 5 ปี' }, { v: '>5 ปี', label: 'มากกว่า 5 ปี' }];
 const ACT = [
   { v: 'การบริหารยา', icon: 'pill' }, { v: 'การให้เลือด', icon: 'drop' },
@@ -446,7 +456,7 @@ const ACT = [
 const ACT_LEGACY = [{ v: 'การเรียกผู้ป่วยเข้าห้องตรวจ', short: 'เรียกเข้าห้องตรวจ' }];
 function actList() { return ACT.concat(ACT_LEGACY.filter(a => (typeof D !== 'undefined' ? D.obs : []).some(o => o.activity === a.v))); }
 const CON = [
-  { v: 'สื่อสารได้เอง', label: 'ผู้ป่วย/ญาติสามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
+  { v: 'สื่อสารได้เอง', label: 'ผู้ป่วย / ญาติ สามารถสื่อสารได้เอง', icon: 'msg', sub: 'ประเมิน Ask · Answer · Accurate' },
   { v: 'สื่อสารไม่ได้ มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และมีญาติ/ผู้ดูแล', icon: 'users', sub: 'ถามญาติ · ประเมินครบ 3A' },
   { v: 'สื่อสารไม่ได้ ไม่มีญาติ/ผู้ดูแล', label: 'สื่อสารไม่ได้ และไม่มีญาติ/ผู้ดูแล', icon: 'userx', sub: 'ประเมินเฉพาะ Accurate (7.1, 7.2)' }];
 const NOCOMM = CON[2].v;
@@ -679,8 +689,14 @@ $('#logout').addEventListener('click', () => { D.pw = null; store.sset('3a_pw', 
 $('#reload').addEventListener('click', async () => { const b = $('#reload'); b.disabled = true; try { load(await api.data(D.pw)); renderDash(); toast(`${ico('check')}อัปเดตข้อมูลแล้ว (${D.obs.length} รายการ)`); } catch (e) { toast(`${ico('alert')}${esc(e.message)}`); } b.disabled = false; });
 
 const num = v => (v === '' || v == null || v === 'NA') ? null : Number(v);
+// Google Sheets แปลงคอลัมน์ time (เช่น 14:10) เป็นค่าเวลา ทำให้ส่งมาเป็น 1899-12-30T14:10:00 → ตัดเหลือ HH:mm
+function hhmm(o) {
+  const m = String(o.time || '').match(/(\d{1,2}):(\d{2})/g);
+  if (m) return m[m.length - 1].padStart(5, '0');
+  const t = String(o.timestamp || '').match(/T(\d{2}:\d{2})/); return t ? t[1] : '';
+}
 function load(r) {
-  D.obs = (r.obs || []).map(o => ({ ...o, date: String(o.date || '').slice(0, 10), ask_ok: num(o.ask_ok), answer_ok: num(o.answer_ok), accurate_ok: num(o.accurate_ok), compliant_3A: Number(o.compliant_3A) }));
+  D.obs = (r.obs || []).map(o => ({ ...o, time: hhmm(o), date: String(o.date || '').slice(0, 10), ask_ok: num(o.ask_ok), answer_ok: num(o.answer_ok), accurate_ok: num(o.accurate_ok), compliant_3A: Number(o.compliant_3A) }));
   if (r.sheetUrl) { $('#openSheet').href = r.sheetUrl; $('#openSheet').classList.remove('hidden'); }
 }
 const opt = (v, l, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(l)}</option>`;
@@ -692,7 +708,7 @@ function initFilters() {
   $('#fDept').innerHTML = opt('', 'ทุกงาน (ภาพรวมฝ่าย)') + DEPTS.map(d => opt(d.code, `${d.code} · ${d.name}`, D.dept === d.code)).join('');
   fillUnit();
   $('#fAct').innerHTML = opt('', 'ทุกกิจกรรม') + actList().map(a => opt(a.v, a.short || a.v)).join('');
-  $('#fPos').innerHTML = opt('', 'ทุกตำแหน่ง') + POS.map(a => opt(a.v, a.v)).join('');
+  $('#fPos').innerHTML = opt('', 'ทุกตำแหน่ง') + POS.map(a => opt(a.v, a.label || a.v)).join('');
   $('#fShift').innerHTML = opt('', 'ทุกเวร') + SHIFTS.map(a => opt(a, 'เวร' + a)).join('');
 }
 function fillUnit() { const d = DEPT[D.dept]; $('#fUnit').disabled = !d; $('#fUnit').innerHTML = opt('', d ? 'ทุกหน่วยงานใน ' + d.code : '—') + (d ? d.units.map(u => opt(u[0], `${u[1]} (${u[0]})`, D.unit === u[0])).join('') : ''); }
@@ -805,7 +821,7 @@ function renderDash() {
   chart('c4', { type: 'bar', data: { labels: actM.map(a => a.l), datasets: [barDs(actM.map(a => a.m.comp == null ? null : +(100 * a.m.comp).toFixed(1)), css('--brand'))] },
     options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${actM[i.dataIndex].m.n})` } } } } });
   // c5: position & experience
-  const pe = [...POS.map(p => ({ l: p.v === POS[2].v ? 'บริหาร/ธุรการ' : p.v, m: M(rows.filter(r => r.position === p.v)) })), ...EXP.map(x => ({ l: 'อายุงาน ' + x.v, m: M(rows.filter(r => r.experience === x.v)) }))];
+  const pe = [...POS.map(p => ({ l: posShort(p.v), m: M(rows.filter(r => r.position === p.v)) })), ...EXP.map(x => ({ l: 'อายุงาน ' + x.v, m: M(rows.filter(r => r.experience === x.v)) }))];
   chart('c5', { type: 'bar', data: { labels: pe.map(a => a.l), datasets: [barDs(pe.map(a => a.m.comp == null ? null : +(100 * a.m.comp).toFixed(1)), pe.map((a, i) => i < 3 ? css('--brand') : css('--ask')))] },
     options: { indexAxis: 'y', scales: { x: pctAxis(), y: noGrid }, plugins: { tooltip: { callbacks: { label: i => ` ครบ 3A ${i.raw}% (n=${pe[i.dataIndex].m.n})` } } } } });
   // c8: consciousness
@@ -863,7 +879,7 @@ function renderRisk(rows) {
   if (model) FACTORS.forEach(([k, name, lvls], fi) => lvls.forEach(v => {
     const sub = rows.filter(r => r[k] === v); if (!sub.length) return;
     const avg = rows.reduce((a, r) => a + model.predict({ ...r, [k]: v }), 0) / rows.length;
-    labels.push([name + ': ' + (v === POS[2].v ? 'บริหาร/ธุรการ' : v.replace('การส่งสิ่งส่งตรวจทางห้องปฏิบัติการ', 'ส่งสิ่งส่งตรวจ'))]); vals.push(+(100 * avg).toFixed(1)); ns.push(sub.length);
+    labels.push([name + ': ' + (k === 'position' ? posShort(v) : v.replace('การส่งสิ่งส่งตรวจทางห้องปฏิบัติการ', 'ส่งสิ่งส่งตรวจ'))]); vals.push(+(100 * avg).toFixed(1)); ns.push(sub.length);
     cols.push(avg >= RISK_HI ? css('--bad') : avg >= RISK_MID ? css('--ans') : css('--acc'));
   }));
   $('#c9d').innerHTML = model ? `ปรับอิทธิพลปัจจัยอื่นแล้ว (Logistic regression) · ค่าเฉลี่ยรวม ${pct(overall)} · สีแดง ≥20% ส้ม 10–19% เขียว &lt;10%` : 'ข้อมูลยังไม่พอสำหรับโมเดล';
@@ -872,7 +888,7 @@ function renderRisk(rows) {
       plugins: { tooltip: { callbacks: { label: i => ` โอกาสไม่ปฏิบัติ ${i.raw}% (n=${ns[i.dataIndex]})` } } } } });
   // calculator
   if (!$('#calc').dataset.init) {
-    $('#calc').innerHTML = FACTORS.map(([k, name, lvls]) => `<label class="f">${name}<select data-k="${k}">${(k === 'activity' ? ACT.map(a => a.v) : lvls).map(v => opt(v, v === POS[2].v ? 'บริหาร/ธุรการ' : v)).join('')}</select></label>`).join('') +
+    $('#calc').innerHTML = FACTORS.map(([k, name, lvls]) => `<label class="f">${name}<select data-k="${k}">${(k === 'activity' ? ACT.map(a => a.v) : lvls).map(v => opt(v, k === 'position' ? posShort(v) : v)).join('')}</select></label>`).join('') +
       `<label class="f">งานการพยาบาล<select data-k="dept_code">${DEPTS.map(d => opt(d.code, d.code)).join('')}</select></label>`;
     $('#calc').dataset.init = 1; $('#calc').addEventListener('change', () => calc());
   }
@@ -889,10 +905,10 @@ function calc() {
 }
 function renderRaw(rows) {
   const list = [...rows].sort((a, b) => String(a.timestamp) < String(b.timestamp) ? 1 : -1).slice(0, 100);
-  $('#rawD').textContent = `แสดง ${list.length} จาก ${rows.length} รายการ (ตามตัวกรอง) · Export CSV เพื่อวิเคราะห์ต่อใน Excel/SPSS/R`;
-  const yn = v => v == null ? '<span style="color:var(--muted)">N/A</span>' : v === 1 ? `<span class="lv l">${ico('check')}</span>` : `<span class="lv h">${ico('x')}</span>`;
-  $('#rawT').innerHTML = '<thead><tr><th>วัน-เวลา</th><th>หน่วยงาน</th><th>ตำแหน่ง</th><th>กิจกรรม</th><th>Ask</th><th>Answer</th><th>Accurate</th><th>ผล</th><th>หมายเหตุ</th></tr></thead><tbody>' +
-    list.map(r => `<tr><td style="white-space:nowrap">${esc(r.date)} ${esc(r.time)}</td><td>${esc(r.unit_code)}</td><td>${esc(r.position)}</td><td>${esc(r.activity)}</td><td>${yn(r.ask_ok)}</td><td>${yn(r.answer_ok)}</td><td>${yn(r.accurate_ok)}</td><td>${r.compliant_3A === 1 ? '<b style="color:var(--ok)">ครบ</b>' : '<b style="color:var(--bad)">ไม่ครบ</b>'}</td><td>${esc(r.note)}</td></tr>`).join('') + '</tbody>';
+  $('#rawD').textContent = `แสดง ${list.length} จาก ${rows.length} รายการ (ตามตัวกรอง) · N/A = ไม่ต้องประเมิน (ผู้ป่วยสื่อสารไม่ได้และไม่มีญาติ/ผู้ดูแล ประเมินเฉพาะ Accurate) · Export CSV เพื่อวิเคราะห์ต่อใน Excel/SPSS/R`;
+  const yn = v => v == null ? '<span style="color:var(--muted)" title="ไม่ต้องประเมิน: ผู้ป่วยสื่อสารไม่ได้และไม่มีญาติ/ผู้ดูแล">N/A</span>' : v === 1 ? `<span class="lv l">${ico('check')}</span>` : `<span class="lv h">${ico('x')}</span>`;
+  $('#rawT').innerHTML = '<thead><tr><th>วัน-เวลา</th><th>หน่วยงาน</th><th>ตำแหน่ง</th><th>กิจกรรม</th><th>ผู้ป่วย</th><th>Ask</th><th>Answer</th><th>Accurate</th><th>ผล</th><th>หมายเหตุ</th></tr></thead><tbody>' +
+    list.map(r => `<tr><td style="white-space:nowrap">${esc(r.date)} ${esc(r.time)}</td><td>${esc(r.unit_code)}</td><td>${esc(r.position)}</td><td>${esc(r.activity)}</td><td style="font-size:13px;color:var(--ink-2)">${esc(r.consciousness)}</td><td>${yn(r.ask_ok)}</td><td>${yn(r.answer_ok)}</td><td>${yn(r.accurate_ok)}</td><td>${r.compliant_3A === 1 ? '<b style="color:var(--ok)">ครบ</b>' : '<b style="color:var(--bad)">ไม่ครบ</b>'}</td><td>${esc(r.note)}</td></tr>`).join('') + '</tbody>';
 }
 
 /* ---------- export ---------- */
@@ -911,7 +927,7 @@ $('#genDemo').addEventListener('click', () => {
   const pick = a => a[Math.floor(Math.random() * a.length)], all = store.get('demo3a_obs', []);
   const deptRisk = Object.fromEntries(DEPTS.map(d => [d.code, .04 + Math.random() * .18]));
   for (let i = 0; i < 600; i++) {
-    const d = pick(DEPTS), u = pick(d.units), t = new Date(Date.now() - Math.random() * 150 * 864e5), pos = pick([0, 0, 0, 1, 1, 2]), ex = pick([0, 1, 2, 2]), act = pick(ACT).v, con = pick([0, 0, 0, 1, 2]);
+    const d = pick(DEPTS), u = pick(d.units), t = new Date(Date.now() - Math.random() * 150 * 864e5), pos = pick([0, 0, 0, 0, 1, 1, 2, 3, 4, 5, 6]), ex = pick([0, 1, 2, 2]), act = pick(ACT).v, con = pick([0, 0, 0, 1, 2]);
     const risk = deptRisk[d.code] + (pos === 2 ? .15 : pos === 1 ? .06 : 0) + (ex === 0 ? .08 : 0) + (act === 'การส่งมอบเอกสารผู้ป่วย' ? .1 : 0) + (con === 1 ? .06 : 0);
     const fail = () => Math.random() < risk * .3;
     const ask = con === 2 ? 'N/A' : fail() ? NO : YES, ans = con === 2 ? 'N/A' : fail() ? NO : YES, acc = fail() ? NO : YES;
